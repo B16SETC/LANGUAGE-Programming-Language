@@ -1,0 +1,12 @@
+x = 5
+y = 10
+z = x + y * 2
+Print z
+
+a = 100
+b = 50
+c = a - b / 2
+Print c
+
+result = 3 + 4 * 5 - 2
+Print result
