@@ -5,7 +5,7 @@
 #include "parser.h"
 #include "interpreter.h"
 
-const std::string VERSION = "0.1.0";
+const std::string VERSION = "0.2.0";
 
 void print_usage() {
     std::cout << "LANGUAGE Programming Language v" << VERSION << "\n";

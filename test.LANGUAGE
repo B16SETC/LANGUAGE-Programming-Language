@@ -1,12 +1,29 @@
-x = 5
-y = 10
-z = x + y * 2
-Print z
+x = 10
+y = 5
 
-a = 100
-b = 50
-c = a - b / 2
-Print c
+If x > y
+  Print 1
+End
 
-result = 3 + 4 * 5 - 2
-Print result
+If x == 10
+  Print 2
+End
+
+If y < 3
+  Print 999
+End
+
+z = 20
+If z >= 20
+  Print 3
+End
+
+If x != y
+  Print 4
+End
+
+a = 7
+b = 7
+If a <= b
+  Print 5
+End

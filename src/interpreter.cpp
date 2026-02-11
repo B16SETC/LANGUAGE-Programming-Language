@@ -44,25 +44,67 @@ double Interpreter::evaluate(ASTNode* node) {
     }
 }
 
+bool Interpreter::evaluate_condition(ASTNode* node) {
+    if (node->type == NodeType::COMPARISON) {
+        auto* cmp_node = static_cast<ComparisonNode*>(node);
+        double left = evaluate(cmp_node->left.get());
+        double right = evaluate(cmp_node->right.get());
+        
+        switch (cmp_node->op) {
+            case TokenType::EQUAL:
+                return left == right;
+            case TokenType::NOT_EQUAL:
+                return left != right;
+            case TokenType::LESS_THAN:
+                return left < right;
+            case TokenType::GREATER_THAN:
+                return left > right;
+            case TokenType::LESS_EQUAL:
+                return left <= right;
+            case TokenType::GREATER_EQUAL:
+                return left >= right;
+            default:
+                throw std::runtime_error("Unknown comparison operator");
+        }
+    }
+    
+    double result = evaluate(node);
+    return result != 0;
+}
+
+void Interpreter::execute_statement(ASTNode* node) {
+    switch (node->type) {
+        case NodeType::ASSIGNMENT: {
+            auto* assign_node = static_cast<AssignmentNode*>(node);
+            double value = evaluate(assign_node->value.get());
+            variables[assign_node->var_name] = value;
+            break;
+        }
+        
+        case NodeType::PRINT: {
+            auto* print_node = static_cast<PrintNode*>(node);
+            double value = evaluate(print_node->expression.get());
+            std::cout << value << std::endl;
+            break;
+        }
+        
+        case NodeType::IF_STATEMENT: {
+            auto* if_node = static_cast<IfStatementNode*>(node);
+            if (evaluate_condition(if_node->condition.get())) {
+                for (const auto& stmt : if_node->body) {
+                    execute_statement(stmt.get());
+                }
+            }
+            break;
+        }
+        
+        default:
+            throw std::runtime_error("Unknown statement type");
+    }
+}
+
 void Interpreter::execute(const std::vector<std::unique_ptr<ASTNode>>& statements) {
     for (const auto& stmt : statements) {
-        switch (stmt->type) {
-            case NodeType::ASSIGNMENT: {
-                auto* assign_node = static_cast<AssignmentNode*>(stmt.get());
-                double value = evaluate(assign_node->value.get());
-                variables[assign_node->var_name] = value;
-                break;
-            }
-            
-            case NodeType::PRINT: {
-                auto* print_node = static_cast<PrintNode*>(stmt.get());
-                double value = evaluate(print_node->expression.get());
-                std::cout << value << std::endl;
-                break;
-            }
-            
-            default:
-                throw std::runtime_error("Unknown statement type");
-        }
+        execute_statement(stmt.get());
     }
 }

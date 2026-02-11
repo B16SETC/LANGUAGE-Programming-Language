@@ -59,11 +59,76 @@ std::unique_ptr<ASTNode> Parser::expression() {
     return node;
 }
 
+std::unique_ptr<ASTNode> Parser::comparison() {
+    auto left = expression();
+    
+    if (current_token.type == TokenType::EQUAL ||
+        current_token.type == TokenType::NOT_EQUAL ||
+        current_token.type == TokenType::LESS_THAN ||
+        current_token.type == TokenType::GREATER_THAN ||
+        current_token.type == TokenType::LESS_EQUAL ||
+        current_token.type == TokenType::GREATER_EQUAL) {
+        
+        TokenType op = current_token.type;
+        advance();
+        auto right = expression();
+        return std::make_unique<ComparisonNode>(op, std::move(left), std::move(right));
+    }
+    
+    return left;
+}
+
+std::unique_ptr<ASTNode> Parser::if_statement() {
+    advance();
+    
+    auto condition = comparison();
+    
+    if (current_token.type != TokenType::NEWLINE) {
+        throw std::runtime_error("Expected newline after If condition");
+    }
+    advance();
+    
+    if (current_token.type != TokenType::INDENT) {
+        throw std::runtime_error("Expected indented block after If");
+    }
+    advance();
+    
+    std::vector<std::unique_ptr<ASTNode>> body;
+    
+    while (current_token.type != TokenType::DEDENT && 
+           current_token.type != TokenType::END &&
+           current_token.type != TokenType::END_OF_FILE) {
+        
+        auto stmt = statement();
+        if (stmt) {
+            body.push_back(std::move(stmt));
+        }
+        
+        if (current_token.type == TokenType::NEWLINE) {
+            advance();
+        }
+    }
+    
+    if (current_token.type == TokenType::DEDENT) {
+        advance();
+    }
+    
+    if (current_token.type == TokenType::END) {
+        advance();
+    }
+    
+    return std::make_unique<IfStatementNode>(std::move(condition), std::move(body));
+}
+
 std::unique_ptr<ASTNode> Parser::statement() {
     if (current_token.type == TokenType::PRINT) {
         advance();
         auto expr = expression();
         return std::make_unique<PrintNode>(std::move(expr));
+    }
+    
+    if (current_token.type == TokenType::IF) {
+        return if_statement();
     }
     
     if (current_token.type == TokenType::IDENTIFIER) {

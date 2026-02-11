@@ -10,8 +10,18 @@ enum class TokenType {
     MULTIPLY,
     DIVIDE,
     ASSIGN,
+    EQUAL,
+    NOT_EQUAL,
+    LESS_THAN,
+    GREATER_THAN,
+    LESS_EQUAL,
+    GREATER_EQUAL,
     PRINT,
+    IF,
+    END,
     NEWLINE,
+    INDENT,
+    DEDENT,
     END_OF_FILE
 };
 
@@ -19,6 +29,7 @@ struct Token {
     TokenType type;
     std::string value;
     int line;
+    int indent_level;
 };
 
 class Lexer {
@@ -30,10 +41,12 @@ private:
     std::string source;
     size_t pos;
     int line;
+    int current_indent;
     char current_char;
 
     void advance();
-    void skip_whitespace();
+    void skip_whitespace_inline();
+    int count_indent();
     Token number();
     Token identifier();
 };

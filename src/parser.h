@@ -7,8 +7,10 @@ enum class NodeType {
     NUMBER,
     VARIABLE,
     BINARY_OP,
+    COMPARISON,
     ASSIGNMENT,
-    PRINT
+    PRINT,
+    IF_STATEMENT
 };
 
 struct ASTNode {
@@ -34,6 +36,14 @@ struct BinaryOpNode : ASTNode {
         : op(o), left(std::move(l)), right(std::move(r)) { type = NodeType::BINARY_OP; }
 };
 
+struct ComparisonNode : ASTNode {
+    TokenType op;
+    std::unique_ptr<ASTNode> left;
+    std::unique_ptr<ASTNode> right;
+    ComparisonNode(TokenType o, std::unique_ptr<ASTNode> l, std::unique_ptr<ASTNode> r)
+        : op(o), left(std::move(l)), right(std::move(r)) { type = NodeType::COMPARISON; }
+};
+
 struct AssignmentNode : ASTNode {
     std::string var_name;
     std::unique_ptr<ASTNode> value;
@@ -44,6 +54,13 @@ struct AssignmentNode : ASTNode {
 struct PrintNode : ASTNode {
     std::unique_ptr<ASTNode> expression;
     PrintNode(std::unique_ptr<ASTNode> expr) : expression(std::move(expr)) { type = NodeType::PRINT; }
+};
+
+struct IfStatementNode : ASTNode {
+    std::unique_ptr<ASTNode> condition;
+    std::vector<std::unique_ptr<ASTNode>> body;
+    IfStatementNode(std::unique_ptr<ASTNode> cond, std::vector<std::unique_ptr<ASTNode>> b)
+        : condition(std::move(cond)), body(std::move(b)) { type = NodeType::IF_STATEMENT; }
 };
 
 class Parser {
@@ -59,6 +76,8 @@ private:
     void advance();
     void consume_newlines();
     std::unique_ptr<ASTNode> statement();
+    std::unique_ptr<ASTNode> if_statement();
+    std::unique_ptr<ASTNode> comparison();
     std::unique_ptr<ASTNode> expression();
     std::unique_ptr<ASTNode> term();
     std::unique_ptr<ASTNode> factor();

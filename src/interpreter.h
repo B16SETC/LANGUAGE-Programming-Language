@@ -11,4 +11,6 @@ private:
     std::map<std::string, double> variables;
     
     double evaluate(ASTNode* node);
+    bool evaluate_condition(ASTNode* node);
+    void execute_statement(ASTNode* node);
 };
