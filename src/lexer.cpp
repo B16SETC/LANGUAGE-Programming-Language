@@ -57,6 +57,9 @@ Token Lexer::identifier() {
     if (id == "If") {
         return {TokenType::IF, id, start_line, current_indent};
     }
+    if (id == "While") {
+        return {TokenType::WHILE, id, start_line, current_indent};
+    }
     if (id == "End") {
         return {TokenType::END, id, start_line, current_indent};
     }

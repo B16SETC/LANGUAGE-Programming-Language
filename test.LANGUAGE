@@ -1,29 +1,17 @@
-x = 10
-y = 5
-
-If x > y
-  Print 1
+x = 5
+While x > 0
+  Print x
+  x = x - 1
 End
 
-If x == 10
-  Print 2
+y = 1
+While y <= 10
+  y = y * 2
 End
+Print y
 
-If y < 3
-  Print 999
+count = 0
+While count < 3
+  count = count + 1
 End
-
-z = 20
-If z >= 20
-  Print 3
-End
-
-If x != y
-  Print 4
-End
-
-a = 7
-b = 7
-If a <= b
-  Print 5
-End
+Print count

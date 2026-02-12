@@ -97,7 +97,17 @@ void Interpreter::execute_statement(ASTNode* node) {
             }
             break;
         }
-        
+
+        case NodeType::WHILE_LOOP: {
+            auto* while_node = static_cast<WhileLoopNode*>(node);
+            while (evaluate_condition(while_node->condition.get())) {
+                for (const auto& stmt : while_node->body) {
+                    execute_statement(stmt.get());
+                }
+            }
+            break;
+        }
+
         default:
             throw std::runtime_error("Unknown statement type");
     }

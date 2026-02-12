@@ -10,7 +10,8 @@ enum class NodeType {
     COMPARISON,
     ASSIGNMENT,
     PRINT,
-    IF_STATEMENT
+    IF_STATEMENT,
+    WHILE_LOOP
 };
 
 struct ASTNode {
@@ -63,6 +64,13 @@ struct IfStatementNode : ASTNode {
         : condition(std::move(cond)), body(std::move(b)) { type = NodeType::IF_STATEMENT; }
 };
 
+struct WhileLoopNode : ASTNode {
+    std::unique_ptr<ASTNode> condition;
+    std::vector<std::unique_ptr<ASTNode>> body;
+    WhileLoopNode(std::unique_ptr<ASTNode> cond, std::vector<std::unique_ptr<ASTNode>> b)
+        : condition(std::move(cond)), body(std::move(b)) { type = NodeType::WHILE_LOOP; }
+};
+
 class Parser {
 public:
     Parser(const std::vector<Token>& tokens);
@@ -77,6 +85,7 @@ private:
     void consume_newlines();
     std::unique_ptr<ASTNode> statement();
     std::unique_ptr<ASTNode> if_statement();
+    std::unique_ptr<ASTNode> while_statement();
     std::unique_ptr<ASTNode> comparison();
     std::unique_ptr<ASTNode> expression();
     std::unique_ptr<ASTNode> term();

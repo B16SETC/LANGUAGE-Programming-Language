@@ -6,7 +6,7 @@ A simple programming language built one feature at a time.
 
 LANGUAGE is a minimalist, whitespace-sensitive programming language created as an experiment. It follows Python-like indentation rules and uses PascalCase for keywords.
 
-**Current Version:** 0.2.0 (Day 2)
+**Current Version:** 0.3.0 (Day 3)
 
 ## Quick Start
 
@@ -55,6 +55,19 @@ End
 - Must be followed by indented block (2 spaces)
 - Closed with `End` keyword
 
+**While Loops**
+```language
+x = 5
+While x > 0
+  Print x
+  x = x - 1
+End
+```
+
+- Repeats block as long as condition is true
+- Must be followed by indented block (2 spaces)
+- Closed with `End` keyword
+
 ### Built-in Commands
 
 **Print** - Output a value
@@ -67,7 +80,7 @@ Print x + y
 
 - **Case-sensitive**: `x`, `X`, and `Print` are all different
 - **Indentation**: Use 2 spaces per indentation level
-- **Keywords**: Use PascalCase (`Print`, `If`, `End`)
+- **Keywords**: Use PascalCase (`Print`, `If`, `While`, `End`)
 - **Comments**: Not yet implemented (coming in Day 5)
 
 ## Installation
@@ -117,7 +130,7 @@ src/
 
 - ✅ **Day 1:** Variables, arithmetic, Print
 - ✅ **Day 2:** If statements, comparisons
-- **Day 3:** While loops
+- ✅ **Day 3:** While loops
 - **Day 4:** Functions
 - **Day 5:** Comments & Else statements
 - **Day 6:** Strings

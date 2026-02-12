@@ -18,6 +18,7 @@ enum class TokenType {
     GREATER_EQUAL,
     PRINT,
     IF,
+    WHILE,
     END,
     NEWLINE,
     INDENT,

@@ -120,6 +120,48 @@ std::unique_ptr<ASTNode> Parser::if_statement() {
     return std::make_unique<IfStatementNode>(std::move(condition), std::move(body));
 }
 
+std::unique_ptr<ASTNode> Parser::while_statement() {
+    advance();
+
+    auto condition = comparison();
+
+    if (current_token.type != TokenType::NEWLINE) {
+        throw std::runtime_error("Expected newline after While condition");
+    }
+    advance();
+
+    if (current_token.type != TokenType::INDENT) {
+        throw std::runtime_error("Expected indented block after While");
+    }
+    advance();
+
+    std::vector<std::unique_ptr<ASTNode>> body;
+
+    while (current_token.type != TokenType::DEDENT &&
+           current_token.type != TokenType::END &&
+           current_token.type != TokenType::END_OF_FILE) {
+
+        auto stmt = statement();
+        if (stmt) {
+            body.push_back(std::move(stmt));
+        }
+
+        if (current_token.type == TokenType::NEWLINE) {
+            advance();
+        }
+    }
+
+    if (current_token.type == TokenType::DEDENT) {
+        advance();
+    }
+
+    if (current_token.type == TokenType::END) {
+        advance();
+    }
+
+    return std::make_unique<WhileLoopNode>(std::move(condition), std::move(body));
+}
+
 std::unique_ptr<ASTNode> Parser::statement() {
     if (current_token.type == TokenType::PRINT) {
         advance();
@@ -129,6 +171,10 @@ std::unique_ptr<ASTNode> Parser::statement() {
     
     if (current_token.type == TokenType::IF) {
         return if_statement();
+    }
+
+    if (current_token.type == TokenType::WHILE) {
+        return while_statement();
     }
     
     if (current_token.type == TokenType::IDENTIFIER) {
