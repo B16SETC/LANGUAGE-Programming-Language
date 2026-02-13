@@ -6,26 +6,25 @@ A simple programming language built one feature at a time.
 
 LANGUAGE is a minimalist, whitespace-sensitive programming language created as an experiment. It follows Python-like indentation rules and uses PascalCase for keywords.
 
-**Current Version:** 0.3.0 (Day 3)
+**Current Version:** 0.4.0 (Day 4)
 
 ## Quick Start
 
 ```language
-x = 10
-y = 5
-
-If x > y
-  Print x
+Func greet(name)
+  Print "Hello " + name
 End
+
+greet("World")
 ```
 
 ## Syntax
 
 ### Variables
-Variables store numbers and don't need declaration:
+Variables store numbers or strings and don't need declaration:
 ```language
 x = 42
-pi = 3.14
+name = "Alice"
 ```
 
 ### Operators
@@ -35,25 +34,28 @@ pi = 3.14
 result = 10 + 5 * 2
 ```
 
+**String Concatenation:** `+`
+```language
+greeting = "Hello " + "World"
+```
+
 **Comparison:** `==` `!=` `<` `>` `<=` `>=`
 ```language
 If x == 10
-  Print 1
+  Print "ten"
 End
 ```
 
 ### Control Flow
 
-**If Statements**
+**If / Else**
 ```language
-If condition
-  Print 1
-  x = 10
+If x > 10
+  Print "big"
+Else
+  Print "small"
 End
 ```
-
-- Must be followed by indented block (2 spaces)
-- Closed with `End` keyword
 
 **While Loops**
 ```language
@@ -64,31 +66,62 @@ While x > 0
 End
 ```
 
-- Repeats block as long as condition is true
-- Must be followed by indented block (2 spaces)
+- Blocks must be indented with 2 spaces
 - Closed with `End` keyword
+
+### Functions
+```language
+Func add(a, b)
+  Return a + b
+End
+
+result = add(5, 3)
+Print result
+```
+
+### Comments
+`#` toggles comment mode on and off:
+```language
+# This is a comment #
+x = 5  # inline comment # y = 10
+Print y
+
+# Everything here is commented out
+until the next hash closes it #
+```
 
 ### Built-in Commands
 
-**Print** - Output a value
+**Print** - Output a value:
 ```language
 Print 42
+Print "Hello"
 Print x + y
+```
+
+**String Operations:**
+```language
+s = "Hello World"
+Print Length(s)           # prints 11 #
+Print Upper(s)            # prints HELLO WORLD #
+Print Lower(s)            # prints hello world #
+Print Contains(s, "World") # prints 1 (true) #
+Print Substring(s, 0, 5)  # prints Hello #
 ```
 
 ## Language Rules
 
 - **Case-sensitive**: `x`, `X`, and `Print` are all different
 - **Indentation**: Use 2 spaces per indentation level
-- **Keywords**: Use PascalCase (`Print`, `If`, `While`, `End`)
-- **Comments**: Not yet implemented (coming in Day 5)
+- **Keywords**: PascalCase (`Print`, `If`, `Else`, `While`, `Func`, `Return`, `End`)
+- **Types**: Numbers and strings (no declaration needed)
 
 ## Installation
 
 ### Linux (Fedora/RHEL)
 Download the `.rpm` from [releases](https://github.com/yourusername/LANGUAGE/releases) and install:
 ```bash
-sudo dnf install ./LANGUAGE-0.2.0-1.fc43.x86_64.rpm
+sudo dnf install ./LANGUAGE-0.4.0-1.fc43.x86_64.rpm
 ```
 
 ### Build from Source
@@ -102,11 +135,6 @@ sudo dnf install ./LANGUAGE-0.2.0-1.fc43.x86_64.rpm
 mkdir build && cd build
 cmake ..
 cmake --build .
-```
-
-**Run:**
-```bash
-./LANGUAGE script.LANGUAGE
 ```
 
 ## Development
@@ -131,31 +159,40 @@ src/
 - ✅ **Day 1:** Variables, arithmetic, Print
 - ✅ **Day 2:** If statements, comparisons
 - ✅ **Day 3:** While loops
-- **Day 4:** Functions
-- **Day 5:** Comments & Else statements
-- **Day 6:** Strings
+- ✅ **Day 4:** Functions, Else, comments, strings & string operations
+- **Day 5:** For loops
+- **Day 6:** Arrays
+- **Day 7:** Array operations
+- **Day 8:** Elif
+- ...
+- **Day 15:** v1.0.0
 
 ## Examples
 
-### Basic arithmetic
+### FizzBuzz
 ```language
-x = 5
-y = 10
-z = x + y * 2
-Print z
+x = 1
+While x <= 20
+  If x == 15
+    Print "FizzBuzz"
+  Else
+    If x == 3
+      Print "Fizz"
+    Else
+      Print x
+    End
+  End
+  x = x + 1
+End
 ```
 
-### Conditionals
+### String manipulation
 ```language
-age = 20
-
-If age >= 18
-  Print 1
-End
-
-If age < 21
-  Print 2
-End
+name = "language"
+Print Upper(name)
+Print Length(name)
+Print Contains(name, "ang")
+Print Substring(name, 0, 4)
 ```
 
 ## Contributing

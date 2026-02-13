@@ -1,44 +1,114 @@
 #include "interpreter.h"
 #include <iostream>
 #include <stdexcept>
+#include <algorithm>
+#include <cmath>
 
-double Interpreter::evaluate(ASTNode* node) {
+Value Interpreter::evaluate(ASTNode* node) {
     switch (node->type) {
         case NodeType::NUMBER: {
-            auto* num_node = static_cast<NumberNode*>(node);
-            return num_node->value;
+            return Value(static_cast<NumberNode*>(node)->value);
         }
-        
+
+        case NodeType::STRING: {
+            return Value(static_cast<StringNode*>(node)->value);
+        }
+
         case NodeType::VARIABLE: {
-            auto* var_node = static_cast<VariableNode*>(node);
-            if (variables.find(var_node->name) == variables.end()) {
-                throw std::runtime_error("Undefined variable: " + var_node->name);
-            }
-            return variables[var_node->name];
+            auto* var = static_cast<VariableNode*>(node);
+            if (variables.find(var->name) == variables.end())
+                throw std::runtime_error("Undefined variable: " + var->name);
+            return variables[var->name];
         }
-        
+
         case NodeType::BINARY_OP: {
-            auto* bin_node = static_cast<BinaryOpNode*>(node);
-            double left = evaluate(bin_node->left.get());
-            double right = evaluate(bin_node->right.get());
-            
-            switch (bin_node->op) {
-                case TokenType::PLUS:
-                    return left + right;
-                case TokenType::MINUS:
-                    return left - right;
-                case TokenType::MULTIPLY:
-                    return left * right;
+            auto* bin = static_cast<BinaryOpNode*>(node);
+            Value left = evaluate(bin->left.get());
+            Value right = evaluate(bin->right.get());
+
+            if (bin->op == TokenType::PLUS) {
+                if (left.is_string() || right.is_string()) {
+                    std::string l = left.is_string() ? left.string : std::to_string((int)left.number == left.number ? (int)left.number : left.number);
+                    std::string r = right.is_string() ? right.string : std::to_string((int)right.number == right.number ? (int)right.number : right.number);
+                    return Value(l + r);
+                }
+                return Value(left.number + right.number);
+            }
+
+            if (!left.is_number() || !right.is_number())
+                throw std::runtime_error("Arithmetic requires numbers");
+
+            switch (bin->op) {
+                case TokenType::MINUS:    return Value(left.number - right.number);
+                case TokenType::MULTIPLY: return Value(left.number * right.number);
                 case TokenType::DIVIDE:
-                    if (right == 0) {
-                        throw std::runtime_error("Division by zero");
-                    }
-                    return left / right;
-                default:
-                    throw std::runtime_error("Unknown operator");
+                    if (right.number == 0) throw std::runtime_error("Division by zero");
+                    return Value(left.number / right.number);
+                default: throw std::runtime_error("Unknown operator");
             }
         }
-        
+
+        case NodeType::FUNC_CALL: {
+            auto* call = static_cast<FuncCallNode*>(node);
+            if (functions.find(call->name) == functions.end())
+                throw std::runtime_error("Undefined function: " + call->name);
+
+            FuncDefNode* func = functions[call->name];
+            if (call->args.size() != func->params.size())
+                throw std::runtime_error("Function " + call->name + " expects " +
+                    std::to_string(func->params.size()) + " arguments");
+
+            auto saved_vars = variables;
+            for (size_t i = 0; i < func->params.size(); i++)
+                variables[func->params[i]] = evaluate(call->args[i].get());
+
+            Value result(0.0);
+            try {
+                for (const auto& stmt : func->body)
+                    execute_statement(stmt.get());
+            } catch (ReturnException& ret) {
+                result = ret.value;
+            }
+
+            variables = saved_vars;
+            return result;
+        }
+
+        case NodeType::STRING_OP: {
+            auto* op = static_cast<StringOpNode*>(node);
+            Value target = evaluate(op->target.get());
+
+            if (op->op == "Length") {
+                if (!target.is_string()) throw std::runtime_error("Length requires a string");
+                return Value((double)target.string.length());
+            }
+            if (op->op == "Upper") {
+                if (!target.is_string()) throw std::runtime_error("Upper requires a string");
+                std::string s = target.string;
+                std::transform(s.begin(), s.end(), s.begin(), ::toupper);
+                return Value(s);
+            }
+            if (op->op == "Lower") {
+                if (!target.is_string()) throw std::runtime_error("Lower requires a string");
+                std::string s = target.string;
+                std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+                return Value(s);
+            }
+            if (op->op == "Contains") {
+                if (!target.is_string()) throw std::runtime_error("Contains requires a string");
+                Value search = evaluate(op->args[0].get());
+                if (!search.is_string()) throw std::runtime_error("Contains search term must be a string");
+                return Value(target.string.find(search.string) != std::string::npos ? 1.0 : 0.0);
+            }
+            if (op->op == "Substring") {
+                if (!target.is_string()) throw std::runtime_error("Substring requires a string");
+                Value start = evaluate(op->args[0].get());
+                Value length = evaluate(op->args[1].get());
+                return Value(target.string.substr((int)start.number, (int)length.number));
+            }
+            throw std::runtime_error("Unknown string operation: " + op->op);
+        }
+
         default:
             throw std::runtime_error("Invalid node type in expression");
     }
@@ -46,66 +116,91 @@ double Interpreter::evaluate(ASTNode* node) {
 
 bool Interpreter::evaluate_condition(ASTNode* node) {
     if (node->type == NodeType::COMPARISON) {
-        auto* cmp_node = static_cast<ComparisonNode*>(node);
-        double left = evaluate(cmp_node->left.get());
-        double right = evaluate(cmp_node->right.get());
-        
-        switch (cmp_node->op) {
-            case TokenType::EQUAL:
-                return left == right;
-            case TokenType::NOT_EQUAL:
-                return left != right;
-            case TokenType::LESS_THAN:
-                return left < right;
-            case TokenType::GREATER_THAN:
-                return left > right;
-            case TokenType::LESS_EQUAL:
-                return left <= right;
-            case TokenType::GREATER_EQUAL:
-                return left >= right;
-            default:
-                throw std::runtime_error("Unknown comparison operator");
+        auto* cmp = static_cast<ComparisonNode*>(node);
+        Value left = evaluate(cmp->left.get());
+        Value right = evaluate(cmp->right.get());
+
+        if (left.is_string() && right.is_string()) {
+            switch (cmp->op) {
+                case TokenType::EQUAL:     return left.string == right.string;
+                case TokenType::NOT_EQUAL: return left.string != right.string;
+                default: throw std::runtime_error("Only == and != supported for string comparison");
+            }
+        }
+
+        if (!left.is_number() || !right.is_number())
+            throw std::runtime_error("Comparison requires matching types");
+
+        switch (cmp->op) {
+            case TokenType::EQUAL:         return left.number == right.number;
+            case TokenType::NOT_EQUAL:     return left.number != right.number;
+            case TokenType::LESS_THAN:     return left.number <  right.number;
+            case TokenType::GREATER_THAN:  return left.number >  right.number;
+            case TokenType::LESS_EQUAL:    return left.number <= right.number;
+            case TokenType::GREATER_EQUAL: return left.number >= right.number;
+            default: throw std::runtime_error("Unknown comparison operator");
         }
     }
-    
-    double result = evaluate(node);
-    return result != 0;
+    Value result = evaluate(node);
+    return result.is_number() ? result.number != 0 : !result.string.empty();
 }
 
 void Interpreter::execute_statement(ASTNode* node) {
     switch (node->type) {
         case NodeType::ASSIGNMENT: {
-            auto* assign_node = static_cast<AssignmentNode*>(node);
-            double value = evaluate(assign_node->value.get());
-            variables[assign_node->var_name] = value;
+            auto* assign = static_cast<AssignmentNode*>(node);
+            variables[assign->var_name] = evaluate(assign->value.get());
             break;
         }
-        
+
         case NodeType::PRINT: {
-            auto* print_node = static_cast<PrintNode*>(node);
-            double value = evaluate(print_node->expression.get());
-            std::cout << value << std::endl;
+            auto* print = static_cast<PrintNode*>(node);
+            Value val = evaluate(print->expression.get());
+            if (val.is_string()) {
+                std::cout << val.string << std::endl;
+            } else {
+                if (val.number == (int)val.number)
+                    std::cout << (int)val.number << std::endl;
+                else
+                    std::cout << val.number << std::endl;
+            }
             break;
         }
-        
+
         case NodeType::IF_STATEMENT: {
             auto* if_node = static_cast<IfStatementNode*>(node);
             if (evaluate_condition(if_node->condition.get())) {
-                for (const auto& stmt : if_node->body) {
+                for (const auto& stmt : if_node->body)
                     execute_statement(stmt.get());
-                }
+            } else {
+                for (const auto& stmt : if_node->else_body)
+                    execute_statement(stmt.get());
             }
             break;
         }
 
         case NodeType::WHILE_LOOP: {
             auto* while_node = static_cast<WhileLoopNode*>(node);
-            while (evaluate_condition(while_node->condition.get())) {
-                for (const auto& stmt : while_node->body) {
+            while (evaluate_condition(while_node->condition.get()))
+                for (const auto& stmt : while_node->body)
                     execute_statement(stmt.get());
-                }
-            }
             break;
+        }
+
+        case NodeType::FUNC_DEF: {
+            auto* func = static_cast<FuncDefNode*>(node);
+            functions[func->name] = func;
+            break;
+        }
+
+        case NodeType::FUNC_CALL: {
+            evaluate(node);
+            break;
+        }
+
+        case NodeType::RETURN_STATEMENT: {
+            auto* ret = static_cast<ReturnNode*>(node);
+            throw ReturnException(evaluate(ret->value.get()));
         }
 
         default:
@@ -114,7 +209,6 @@ void Interpreter::execute_statement(ASTNode* node) {
 }
 
 void Interpreter::execute(const std::vector<std::unique_ptr<ASTNode>>& statements) {
-    for (const auto& stmt : statements) {
+    for (const auto& stmt : statements)
         execute_statement(stmt.get());
-    }
 }

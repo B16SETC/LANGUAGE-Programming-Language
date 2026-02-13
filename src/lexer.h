@@ -4,6 +4,7 @@
 
 enum class TokenType {
     NUMBER,
+    STRING,
     IDENTIFIER,
     PLUS,
     MINUS,
@@ -16,9 +17,15 @@ enum class TokenType {
     GREATER_THAN,
     LESS_EQUAL,
     GREATER_EQUAL,
+    LPAREN,
+    RPAREN,
+    COMMA,
     PRINT,
     IF,
+    ELSE,
     WHILE,
+    FUNC,
+    RETURN,
     END,
     NEWLINE,
     INDENT,
@@ -49,5 +56,6 @@ private:
     void skip_whitespace_inline();
     int count_indent();
     Token number();
+    Token string_literal();
     Token identifier();
 };

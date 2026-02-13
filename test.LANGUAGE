@@ -1,17 +1,31 @@
-x = 5
-While x > 0
-  Print x
-  x = x - 1
+# This is a comment #
+x = 10
+y = 20
+
+# Test If/Else #
+If x > y
+  Print "x is bigger"
+Else
+  Print "y is bigger"
 End
 
-y = 1
-While y <= 10
-  y = y * 2
+# Test functions #
+Func add(a, b)
+  Return a + b
 End
-Print y
 
-count = 0
-While count < 3
-  count = count + 1
-End
-Print count
+result = add(5, 3)
+Print result
+
+# Test string operations #
+name = "Hello"
+Print Length(name)
+Print Upper(name)
+Print Lower(name)
+Print Contains(name, "ell")
+
+greeting = "Hello" + " " + "World"
+Print greeting
+
+# Test inline comment # z = 99
+Print z

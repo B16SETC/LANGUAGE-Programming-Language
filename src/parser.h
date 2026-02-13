@@ -5,13 +5,18 @@
 
 enum class NodeType {
     NUMBER,
+    STRING,
     VARIABLE,
     BINARY_OP,
     COMPARISON,
     ASSIGNMENT,
     PRINT,
     IF_STATEMENT,
-    WHILE_LOOP
+    WHILE_LOOP,
+    FUNC_DEF,
+    FUNC_CALL,
+    RETURN_STATEMENT,
+    STRING_OP
 };
 
 struct ASTNode {
@@ -22,6 +27,11 @@ struct ASTNode {
 struct NumberNode : ASTNode {
     double value;
     NumberNode(double val) : value(val) { type = NodeType::NUMBER; }
+};
+
+struct StringNode : ASTNode {
+    std::string value;
+    StringNode(const std::string& val) : value(val) { type = NodeType::STRING; }
 };
 
 struct VariableNode : ASTNode {
@@ -60,8 +70,11 @@ struct PrintNode : ASTNode {
 struct IfStatementNode : ASTNode {
     std::unique_ptr<ASTNode> condition;
     std::vector<std::unique_ptr<ASTNode>> body;
-    IfStatementNode(std::unique_ptr<ASTNode> cond, std::vector<std::unique_ptr<ASTNode>> b)
-        : condition(std::move(cond)), body(std::move(b)) { type = NodeType::IF_STATEMENT; }
+    std::vector<std::unique_ptr<ASTNode>> else_body;
+    IfStatementNode(std::unique_ptr<ASTNode> cond,
+                    std::vector<std::unique_ptr<ASTNode>> b,
+                    std::vector<std::unique_ptr<ASTNode>> eb)
+        : condition(std::move(cond)), body(std::move(b)), else_body(std::move(eb)) { type = NodeType::IF_STATEMENT; }
 };
 
 struct WhileLoopNode : ASTNode {
@@ -69,6 +82,34 @@ struct WhileLoopNode : ASTNode {
     std::vector<std::unique_ptr<ASTNode>> body;
     WhileLoopNode(std::unique_ptr<ASTNode> cond, std::vector<std::unique_ptr<ASTNode>> b)
         : condition(std::move(cond)), body(std::move(b)) { type = NodeType::WHILE_LOOP; }
+};
+
+struct FuncDefNode : ASTNode {
+    std::string name;
+    std::vector<std::string> params;
+    std::vector<std::unique_ptr<ASTNode>> body;
+    FuncDefNode(const std::string& n, std::vector<std::string> p, std::vector<std::unique_ptr<ASTNode>> b)
+        : name(n), params(std::move(p)), body(std::move(b)) { type = NodeType::FUNC_DEF; }
+};
+
+struct FuncCallNode : ASTNode {
+    std::string name;
+    std::vector<std::unique_ptr<ASTNode>> args;
+    FuncCallNode(const std::string& n, std::vector<std::unique_ptr<ASTNode>> a)
+        : name(n), args(std::move(a)) { type = NodeType::FUNC_CALL; }
+};
+
+struct ReturnNode : ASTNode {
+    std::unique_ptr<ASTNode> value;
+    ReturnNode(std::unique_ptr<ASTNode> val) : value(std::move(val)) { type = NodeType::RETURN_STATEMENT; }
+};
+
+struct StringOpNode : ASTNode {
+    std::string op;
+    std::unique_ptr<ASTNode> target;
+    std::vector<std::unique_ptr<ASTNode>> args;
+    StringOpNode(const std::string& o, std::unique_ptr<ASTNode> t, std::vector<std::unique_ptr<ASTNode>> a)
+        : op(o), target(std::move(t)), args(std::move(a)) { type = NodeType::STRING_OP; }
 };
 
 class Parser {
@@ -83,9 +124,11 @@ private:
 
     void advance();
     void consume_newlines();
+    std::vector<std::unique_ptr<ASTNode>> parse_block();
     std::unique_ptr<ASTNode> statement();
     std::unique_ptr<ASTNode> if_statement();
     std::unique_ptr<ASTNode> while_statement();
+    std::unique_ptr<ASTNode> func_def();
     std::unique_ptr<ASTNode> comparison();
     std::unique_ptr<ASTNode> expression();
     std::unique_ptr<ASTNode> term();
