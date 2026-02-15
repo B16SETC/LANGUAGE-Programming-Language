@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LANGUAGE — A Programming Language</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0a;
+      --surface: #111111;
+      --border: #222222;
+      --accent: #e8ff47;
+      --accent2: #47ffb2;
+      --text: #f0f0f0;
+      --muted: #555;
+      --code-bg: #0f0f0f;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* Custom cursor */
+    .cursor {
+      position: fixed;
+      width: 12px;
+      height: 12px;
+      background: var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s, width 0.2s, height 0.2s;
+      mix-blend-mode: difference;
+    }
+    .cursor-ring {
+      position: fixed;
+      width: 36px;
+      height: 36px;
+      border: 1px solid var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.15s ease-out, width 0.3s, height 0.3s, opacity 0.3s;
+      opacity: 0.5;
+    }
+
+    /* Grain overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9997;
+      opacity: 0.4;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem 3rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10,10,10,0.85);
+      backdrop-filter: blur(12px);
+    }
+
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      letter-spacing: 0.15em;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--accent); }
+
+    .nav-badge {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--bg);
+      background: var(--accent);
+      padding: 0.3rem 0.8rem;
+      letter-spacing: 0.05em;
+    }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 10rem 3rem 6rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 60px 60px;
+      opacity: 0.3;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+    }
+
+    .hero-tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.2s;
+    }
+
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(5rem, 15vw, 14rem);
+      line-height: 0.9;
+      letter-spacing: -0.01em;
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.4s;
+    }
+
+    .hero-title span {
+      color: var(--accent);
+      display: inline-block;
+      position: relative;
+    }
+
+    .hero-title span::after {
+      content: '';
+      position: absolute;
+      bottom: 0.05em;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--accent);
+    }
+
+    .hero-sub {
+      font-size: 1.15rem;
+      color: #888;
+      max-width: 520px;
+      line-height: 1.7;
+      font-weight: 300;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.6s;
+      margin-bottom: 3rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.8s;
+    }
+
+    .btn {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.9rem 2rem;
+      text-decoration: none;
+      border: none;
+      cursor: none;
+      transition: all 0.2s;
+      display: inline-block;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: var(--bg);
+    }
+    .btn-primary:hover {
+      background: #fff;
+      transform: translate(-2px, -2px);
+      box-shadow: 4px 4px 0 var(--accent);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translate(-2px, -2px);
+      box-shadow: 4px 4px 0 var(--border);
+    }
+
+    .hero-version {
+      position: absolute;
+      bottom: 3rem;
+      right: 3rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-align: right;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 1s;
+    }
+
+    .hero-version strong {
+      display: block;
+      color: var(--accent);
+      font-size: 1.2rem;
+    }
+
+    /* MARQUEE */
+    .marquee-wrap {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+      padding: 1rem 0;
+      background: var(--surface);
+    }
+
+    .marquee-track {
+      display: flex;
+      gap: 3rem;
+      animation: marquee 20s linear infinite;
+      white-space: nowrap;
+    }
+
+    .marquee-track span {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .marquee-track span.accent { color: var(--accent); }
+
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    /* CODE SECTION */
+    .section {
+      padding: 8rem 3rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--accent);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      line-height: 1;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.02em;
+    }
+
+    .section-body {
+      color: #888;
+      font-size: 1rem;
+      line-height: 1.8;
+      max-width: 560px;
+      font-weight: 300;
+    }
+
+    /* CODE DEMO */
+    .code-demo {
+      padding: 8rem 3rem;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .code-demo-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .code-block {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .code-block::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .code-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .code-filename {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-left: auto;
+    }
+
+    pre {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 2;
+      overflow-x: auto;
+    }
+
+    .kw   { color: #ff79c6; }
+    .fn   { color: var(--accent2); }
+    .str  { color: var(--accent); }
+    .num  { color: #bd93f9; }
+    .cmt  { color: #555; font-style: italic; }
+    .var  { color: #f0f0f0; }
+
+    /* FEATURES */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-top: 4rem;
+    }
+
+    .feature-card {
+      background: var(--bg);
+      padding: 2.5rem;
+      transition: background 0.2s;
+    }
+
+    .feature-card:hover { background: var(--surface); }
+
+    .feature-icon {
+      font-family: 'Space Mono', monospace;
+      font-size: 1.5rem;
+      color: var(--accent);
+      margin-bottom: 1.2rem;
+      display: block;
+    }
+
+    .feature-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.8rem;
+    }
+
+    .feature-desc {
+      font-size: 0.875rem;
+      color: #666;
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
+    /* ROADMAP */
+    .roadmap {
+      padding: 8rem 3rem;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+    }
+
+    .roadmap-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .roadmap-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-top: 4rem;
+    }
+
+    .roadmap-item {
+      background: var(--surface);
+      padding: 2rem;
+      position: relative;
+    }
+
+    .roadmap-item.done { background: #0d0d0d; }
+    .roadmap-item.done::after {
+      content: '✓';
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      color: var(--accent);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+    }
+
+    .roadmap-item.soon { border-top: 2px solid var(--accent); }
+    .roadmap-item.future { border-top: 2px solid var(--border); }
+
+    .roadmap-day {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.15em;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+    }
+
+    .roadmap-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1rem;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+
+    .roadmap-desc {
+      font-size: 0.75rem;
+      color: #555;
+      line-height: 1.6;
+    }
+
+    /* UNITED LANGUAGE */
+    .united {
+      padding: 10rem 3rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .united::before {
+      content: 'UNITED LANGUAGE';
+      position: absolute;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20vw;
+      color: transparent;
+      -webkit-text-stroke: 1px var(--border);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      white-space: nowrap;
+      pointer-events: none;
+      letter-spacing: 0.02em;
+    }
+
+    .united-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--accent);
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      margin-bottom: 2rem;
+    }
+
+    .united-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 8vw, 7rem);
+      letter-spacing: 0.05em;
+      line-height: 1;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    .united-sub {
+      font-size: 1rem;
+      color: #666;
+      font-weight: 300;
+      max-width: 480px;
+      margin: 0 auto 3rem;
+      line-height: 1.7;
+    }
+
+    .united-badge {
+      display: inline-block;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      border: 1px solid var(--border);
+      padding: 0.6rem 1.5rem;
+      color: var(--muted);
+      position: relative;
+    }
+
+    /* INSTALL */
+    .install {
+      padding: 8rem 3rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .install-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      align-items: center;
+    }
+
+    .install-block {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      margin-top: 1.5rem;
+    }
+
+    .install-block code {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--accent2);
+    }
+
+    .install-block .prompt {
+      color: var(--muted);
+      margin-right: 0.5rem;
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.2rem;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .footer-links a {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--accent); }
+
+    .footer-copy {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    @media (max-width: 900px) {
+      nav { padding: 1.2rem 1.5rem; }
+      .nav-links { display: none; }
+      .hero { padding: 8rem 1.5rem 4rem; }
+      .code-demo-inner { grid-template-columns: 1fr; }
+      .features-grid { grid-template-columns: 1fr; }
+      .roadmap-grid { grid-template-columns: repeat(2, 1fr); }
+      .install-inner { grid-template-columns: 1fr; gap: 3rem; }
+      footer { flex-direction: column; gap: 1.5rem; text-align: center; }
+      .section { padding: 5rem 1.5rem; }
+      .united { padding: 6rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo">LANGUAGE</a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#code">Examples</a></li>
+      <li><a href="#roadmap">Roadmap</a></li>
+      <li><a href="#install">Install</a></li>
+      <li><a href="https://github.com/B16SETC/LANGUAGE-Programming-Language" target="_blank">GitHub</a></li>
+    </ul>
+    <span class="nav-badge">v0.5.0</span>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-grid"></div>
+    <p class="hero-tag">// The Language Built One Day At A Time</p>
+    <h1 class="hero-title">LANG<span>UAGE</span></h1>
+    <p class="hero-sub">A minimalist, whitespace-sensitive programming language with PascalCase keywords. Simple syntax. Ambitious future.</p>
+    <div class="hero-actions">
+      <a href="#install" class="btn btn-primary">Get Started</a>
+      <a href="https://github.com/B16SETC/LANGUAGE-Programming-Language" class="btn btn-secondary" target="_blank">View on GitHub</a>
+      <a href="https://marketplace.visualstudio.com/items?itemName=James6769.LANGUAGE-Programming-Language-Extension" class="btn btn-secondary" target="_blank">VS Code Extension</a>
+    </div>
+    <div class="hero-version">
+      <strong>v0.5.0</strong>
+      Day 5 of 120
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <span class="accent">Variables</span><span>·</span>
+      <span>If / Elif / Else</span><span>·</span>
+      <span class="accent">While Loops</span><span>·</span>
+      <span>For Loops</span><span>·</span>
+      <span class="accent">Functions</span><span>·</span>
+      <span>Strings</span><span>·</span>
+      <span class="accent">Arrays</span><span>·</span>
+      <span>Booleans</span><span>·</span>
+      <span class="accent">Logical Operators</span><span>·</span>
+      <span>Toggle Comments</span><span>·</span>
+      <span class="accent">String Operations</span><span>·</span>
+      <span>Cross Platform</span><span>·</span>
+      <span class="accent">Variables</span><span>·</span>
+      <span>If / Elif / Else</span><span>·</span>
+      <span class="accent">While Loops</span><span>·</span>
+      <span>For Loops</span><span>·</span>
+      <span class="accent">Functions</span><span>·</span>
+      <span>Strings</span><span>·</span>
+      <span class="accent">Arrays</span><span>·</span>
+      <span>Booleans</span><span>·</span>
+      <span class="accent">Logical Operators</span><span>·</span>
+      <span>Toggle Comments</span><span>·</span>
+      <span class="accent">String Operations</span><span>·</span>
+      <span>Cross Platform</span><span>·</span>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <section class="section" id="features">
+    <p class="section-label reveal">// Why LANGUAGE</p>
+    <h2 class="section-title reveal">Built Different.</h2>
+    <p class="section-body reveal">LANGUAGE is an experiment in building a programming language from scratch, one feature per day. Clean syntax. PascalCase keywords. Python-like indentation. No boilerplate.</p>
+
+    <div class="features-grid reveal">
+      <div class="feature-card">
+        <span class="feature-icon">[01]</span>
+        <h3 class="feature-title">Minimal Syntax</h3>
+        <p class="feature-desc">No semicolons, no curly braces. Indentation-based blocks with PascalCase keywords that read like plain English.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">[02]</span>
+        <h3 class="feature-title">Cross Platform</h3>
+        <p class="feature-desc">Runs on Windows, Linux, and macOS. Available as an RPM for Fedora or a native installer for Windows.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">[03]</span>
+        <h3 class="feature-title">Zero Dependencies</h3>
+        <p class="feature-desc">Compiled to a single standalone binary. No runtime, no VM, no DLLs. Just download and run.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">[04]</span>
+        <h3 class="feature-title">VS Code Extension</h3>
+        <p class="feature-desc">Full syntax highlighting available on the VS Code Marketplace. Install in one click.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">[05]</span>
+        <h3 class="feature-title">Open Source</h3>
+        <p class="feature-desc">MIT licensed. Built in C++17. Every line of the interpreter is open for you to read, fork, and contribute to.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">[06]</span>
+        <h3 class="feature-title">Growing Fast</h3>
+        <p class="feature-desc">New features every day. Networking, UI, compilation, and even a game engine are all on the roadmap.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CODE DEMO -->
+  <div class="code-demo" id="code">
+    <div class="code-demo-inner">
+      <div>
+        <p class="section-label reveal">// See It In Action</p>
+        <h2 class="section-title reveal">Clean. Readable. Powerful.</h2>
+        <p class="section-body reveal">LANGUAGE reads almost like pseudocode. If you can think it, you can write it. No syntax getting in the way of your ideas.</p>
+      </div>
+      <div class="code-block reveal">
+        <div class="code-header">
+          <div class="code-dot" style="background:#ff5f57"></div>
+          <div class="code-dot" style="background:#febc2e"></div>
+          <div class="code-dot" style="background:#28c840"></div>
+          <span class="code-filename">fizzbuzz.LANGUAGE</span>
+        </div>
+        <pre><span class="cmt"># FizzBuzz in LANGUAGE #</span>
+<span class="kw">For</span> <span class="var">i</span> = <span class="num">1</span> <span class="kw">To</span> <span class="num">20</span>
+  <span class="kw">If</span> <span class="var">i</span> == <span class="num">15</span>
+    <span class="fn">Print</span> <span class="str">"FizzBuzz"</span>
+  <span class="kw">Elif</span> <span class="var">i</span> == <span class="num">3</span>
+    <span class="fn">Print</span> <span class="str">"Fizz"</span>
+  <span class="kw">Elif</span> <span class="var">i</span> == <span class="num">5</span>
+    <span class="fn">Print</span> <span class="str">"Buzz"</span>
+  <span class="kw">Else</span>
+    <span class="fn">Print</span> <span class="var">i</span>
+  <span class="kw">End</span>
+<span class="kw">End</span>
+
+<span class="cmt"># Functions & arrays #</span>
+<span class="kw">Func</span> <span class="fn">sum</span>(<span class="var">nums</span>)
+  <span class="var">total</span> = <span class="num">0</span>
+  <span class="var">i</span> = <span class="num">0</span>
+  <span class="kw">While</span> <span class="var">i</span> &lt; <span class="fn">Length</span>(<span class="var">nums</span>)
+    <span class="var">total</span> = <span class="var">total</span> + <span class="var">nums</span>[<span class="var">i</span>]
+    <span class="var">i</span> = <span class="var">i</span> + <span class="num">1</span>
+  <span class="kw">End</span>
+  <span class="kw">Return</span> <span class="var">total</span>
+<span class="kw">End</span>
+
+<span class="var">scores</span> = [<span class="num">10</span>, <span class="num">25</span>, <span class="num">37</span>, <span class="num">42</span>]
+<span class="fn">Print</span> <span class="fn">sum</span>(<span class="var">scores</span>)</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROADMAP -->
+  <div class="roadmap" id="roadmap">
+    <div class="roadmap-inner">
+      <p class="section-label reveal">// The Plan</p>
+      <h2 class="section-title reveal">120 Days.<br>One Language.</h2>
+      <p class="section-body reveal">LANGUAGE is built one feature per day. Here's where we are and where we're going.</p>
+
+      <div class="roadmap-grid reveal">
+        <div class="roadmap-item done">
+          <p class="roadmap-day">Day 1</p>
+          <h3 class="roadmap-title">Foundation</h3>
+          <p class="roadmap-desc">Variables, arithmetic, Print</p>
+        </div>
+        <div class="roadmap-item done">
+          <p class="roadmap-day">Day 2</p>
+          <h3 class="roadmap-title">Control Flow</h3>
+          <p class="roadmap-desc">If statements, comparisons</p>
+        </div>
+        <div class="roadmap-item done">
+          <p class="roadmap-day">Day 3</p>
+          <h3 class="roadmap-title">Loops</h3>
+          <p class="roadmap-desc">While loops</p>
+        </div>
+        <div class="roadmap-item done">
+          <p class="roadmap-day">Day 4</p>
+          <h3 class="roadmap-title">Functions & Strings</h3>
+          <p class="roadmap-desc">Functions, Else, comments, strings</p>
+        </div>
+        <div class="roadmap-item done">
+          <p class="roadmap-day">Day 5</p>
+          <h3 class="roadmap-title">Data Structures</h3>
+          <p class="roadmap-desc">For loops, arrays, Elif, booleans, And/Or/Not</p>
+        </div>
+        <div class="roadmap-item soon">
+          <p class="roadmap-day">Day 6 → v1.0.0</p>
+          <h3 class="roadmap-title">Complete Language</h3>
+          <p class="roadmap-desc">Input, type conversion, math, file I/O, error handling</p>
+        </div>
+        <div class="roadmap-item future">
+          <p class="roadmap-day">Day 31-40</p>
+          <h3 class="roadmap-title">Networking</h3>
+          <p class="roadmap-desc">TCP/HTTP sockets, REST API framework</p>
+        </div>
+        <div class="roadmap-item future">
+          <p class="roadmap-day">Day 41-50</p>
+          <h3 class="roadmap-title">UI & Graphics</h3>
+          <p class="roadmap-desc">Window system, canvas, events, animation</p>
+        </div>
+        <div class="roadmap-item future">
+          <p class="roadmap-day">Day 54-60</p>
+          <h3 class="roadmap-title">Compiler</h3>
+          <p class="roadmap-desc">Compile to native .exe and .x86_64 binaries</p>
+        </div>
+        <div class="roadmap-item future">
+          <p class="roadmap-day">Day ~55</p>
+          <h3 class="roadmap-title">United LANGUAGE</h3>
+          <p class="roadmap-desc">2D multiplayer game engine built in LANGUAGE</p>
+        </div>
+        <div class="roadmap-item future">
+          <p class="roadmap-day">Day 81-100</p>
+          <h3 class="roadmap-title">LANGUAGE Elite</h3>
+          <p class="roadmap-desc">Static typed, zero runtime, systems programming dialect</p>
+        </div>
+        <div class="roadmap-item future">
+          <p class="roadmap-day">Day 120</p>
+          <h3 class="roadmap-title">v10.0.0</h3>
+          <p class="roadmap-desc">Complete ecosystem. Package manager, OS kernel, self-hosting compiler.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- UNITED LANGUAGE TEASER -->
+  <section class="united">
+    <p class="united-label reveal">// Coming Soon</p>
+    <h2 class="united-title reveal">United LANGUAGE</h2>
+    <p class="united-sub reveal">A game engine featuring the LANGUAGE programming language. Build 2D games. Host multiplayer servers. All in LANGUAGE.</p>
+    <span class="united-badge reveal">In Development — Est. Day 55</span>
+  </section>
+
+  <!-- INSTALL -->
+  <section class="install" id="install">
+    <div class="install-inner">
+      <div>
+        <p class="section-label reveal">// Get It</p>
+        <h2 class="section-title reveal">Install LANGUAGE</h2>
+        <p class="section-body reveal">Available on Linux and Windows. Download the latest release from GitHub or install via package manager on Fedora.</p>
+      </div>
+      <div class="reveal">
+        <p style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.5rem;">Fedora / RHEL</p>
+        <div class="install-block">
+          <code><span class="prompt">$</span> sudo dnf install ./LANGUAGE-0.5.0-Linux-x86_x64.rpm</code>
+        </div>
+
+        <p style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.5rem;margin-top:2rem;">Windows</p>
+        <div class="install-block">
+          <code><span class="prompt">&gt;</span> LANGUAGE-0.5.0-Setup.exe</code>
+        </div>
+
+        <p style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.5rem;margin-top:2rem;">Build from Source</p>
+        <div class="install-block">
+          <code>
+            <span class="prompt">$</span> git clone https://github.com/B16SETC/LANGUAGE-Programming-Language<br>
+            <span class="prompt">$</span> cd LANGUAGE && mkdir build && cd build<br>
+            <span class="prompt">$</span> cmake .. && cmake --build .
+          </code>
+        </div>
+
+        <div style="margin-top:2rem;">
+          <a href="https://github.com/B16SETC/LANGUAGE-Programming-Language/releases" class="btn btn-primary" target="_blank">Download Latest Release</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="footer-logo">LANGUAGE</span>
+    <ul class="footer-links">
+      <li><a href="https://github.com/B16SETC/LANGUAGE-Programming-Language" target="_blank">GitHub</a></li>
+      <li><a href="https://marketplace.visualstudio.com/items?itemName=James6769.LANGUAGE-Programming-Language-Extension" target="_blank">VS Code</a></li>
+      <li><a href="#roadmap">Roadmap</a></li>
+    </ul>
+    <span class="footer-copy">MIT License · 2026</span>
+  </footer>
+
+  <script>
+    // Custom cursor
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.left = mx + 'px';
+      cursor.style.top = my + 'px';
+    });
+
+    function animateRing() {
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
+      ring.style.left = rx + 'px';
+      ring.style.top = ry + 'px';
+      requestAnimationFrame(animateRing);
+    }
+    animateRing();
+
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), i * 80);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    reveals.forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
