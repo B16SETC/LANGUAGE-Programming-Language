@@ -4,9 +4,9 @@ A simple programming language built one feature at a time.
 
 ## About
 
-LANGUAGE is a minimalist, whitespace-sensitive programming language created as an experiment. It follows Python-like indentation rules and uses PascalCase for keywords.
+LANGUAGE is a minimalist, whitespace-sensitive programming language. It follows Python-like indentation rules and uses PascalCase for keywords.
 
-**Current Version:** 0.4.0 (Day 4)
+**Current Version:** 0.5.0 (Day 5)
 
 ## Quick Start
 
@@ -15,24 +15,25 @@ Func greet(name)
   Print "Hello " + name
 End
 
-greet("World")
+For i = 1 To 3
+  greet("World")
+End
 ```
 
 ## Syntax
 
 ### Variables
-Variables store numbers or strings and don't need declaration:
+Variables store numbers, strings, booleans, or arrays:
 ```language
 x = 42
 name = "Alice"
+flag = True
+nums = [1, 2, 3]
 ```
 
 ### Operators
 
 **Arithmetic:** `+` `-` `*` `/`
-```language
-result = 10 + 5 * 2
-```
 
 **String Concatenation:** `+`
 ```language
@@ -40,20 +41,24 @@ greeting = "Hello " + "World"
 ```
 
 **Comparison:** `==` `!=` `<` `>` `<=` `>=`
+
+**Logical:** `And` `Or` `Not`
 ```language
-If x == 10
-  Print "ten"
+If x > 5 And x < 100
+  Print "in range"
 End
 ```
 
 ### Control Flow
 
-**If / Else**
+**If / Elif / Else**
 ```language
-If x > 10
-  Print "big"
-Else
+If x < 10
   Print "small"
+Elif x < 100
+  Print "medium"
+Else
+  Print "large"
 End
 ```
 
@@ -66,8 +71,12 @@ While x > 0
 End
 ```
 
-- Blocks must be indented with 2 spaces
-- Closed with `End` keyword
+**For Loops**
+```language
+For i = 1 To 10
+  Print i
+End
+```
 
 ### Functions
 ```language
@@ -79,67 +88,84 @@ result = add(5, 3)
 Print result
 ```
 
+### Arrays
+```language
+nums = [10, 20, 30]
+Print nums[0]
+nums[1] = 99
+Print Length(nums)
+Push(nums, 40)
+Pop(nums)
+```
+
+### Booleans
+```language
+a = True
+b = False
+Print a
+If a And Not b
+  Print "works"
+End
+```
+
 ### Comments
 `#` toggles comment mode on and off:
 ```language
 # This is a comment #
 x = 5  # inline comment # y = 10
-Print y
-
-# Everything here is commented out
-until the next hash closes it #
 ```
 
 ### Built-in Commands
 
-**Print** - Output a value:
+**Print** - Output any value:
 ```language
 Print 42
 Print "Hello"
-Print x + y
+Print True
+Print [1, 2, 3]
 ```
 
 **String Operations:**
 ```language
 s = "Hello World"
-Print Length(s)           # prints 11 #
-Print Upper(s)            # prints HELLO WORLD #
-Print Lower(s)            # prints hello world #
-Print Contains(s, "World") # prints 1 (true) #
-Print Substring(s, 0, 5)  # prints Hello #
+Print Length(s)
+Print Upper(s)
+Print Lower(s)
+Print Contains(s, "World")
+Print Substring(s, 0, 5)
+```
+
+**Array Operations:**
+```language
+arr = [1, 2, 3]
+Print Length(arr)
+Push(arr, 4)
+Pop(arr)
+Print arr[0]
+arr[0] = 99
 ```
 
 ## Language Rules
 
-- **Case-sensitive**: `x`, `X`, and `Print` are all different
-- **Indentation**: Use 2 spaces per indentation level
-- **Keywords**: PascalCase (`Print`, `If`, `Else`, `While`, `Func`, `Return`, `End`)
-- **Types**: Numbers and strings (no declaration needed)
+- **Case-sensitive**: `x` and `X` are different
+- **Indentation**: 2 spaces per level
+- **Keywords**: PascalCase (`Print`, `If`, `Elif`, `Else`, `While`, `For`, `To`, `Func`, `Return`, `End`, `And`, `Or`, `Not`, `True`, `False`)
 
 ## Installation
 
 ### Linux (Fedora/RHEL)
-Download the `.rpm` from [releases](https://github.com/yourusername/LANGUAGE/releases) and install:
 ```bash
-sudo dnf install ./LANGUAGE-0.4.0-1.fc43.x86_64.rpm
+sudo dnf install ./LANGUAGE-0.5.0-1.fc43.x86_64.rpm
 ```
 
 ### Build from Source
-
-**Requirements:**
-- CMake 3.20+
-- C++17 compiler
-
-**Build:**
 ```bash
 mkdir build && cd build
 cmake ..
 cmake --build .
 ```
 
-## Development
-
-### Project Structure
+## Project Structure
 ```
 src/
   main.cpp        - Entry point and CLI
@@ -148,56 +174,46 @@ src/
   interpreter.cpp - Execution
 ```
 
-### Building in CLion
-1. Open project folder
-2. CLion auto-configures CMake
-3. Click Run (▶️)
-4. Edit Configurations → Program arguments → add `test.LANGUAGE`
-
 ## Roadmap
 
 - ✅ **Day 1:** Variables, arithmetic, Print
 - ✅ **Day 2:** If statements, comparisons
 - ✅ **Day 3:** While loops
 - ✅ **Day 4:** Functions, Else, comments, strings & string operations
-- **Day 5:** For loops
-- **Day 6:** Arrays
-- **Day 7:** Array operations
-- **Day 8:** Elif
+- ✅ **Day 5:** For loops, arrays, array operations, Elif, booleans, logical operators
+- **Day 6:** User Input, type conversion → **v1.0.0**
+- **Day 7:** Math built-ins, error handling
+- **Day 8:** Modules & Import
 - ...
-- **Day 15:** v1.0.0
 
 ## Examples
 
 ### FizzBuzz
 ```language
-x = 1
-While x <= 20
-  If x == 15
+For i = 1 To 20
+  If i == 15
     Print "FizzBuzz"
+  Elif i == 3
+    Print "Fizz"
+  Elif i == 5
+    Print "Buzz"
   Else
-    If x == 3
-      Print "Fizz"
-    Else
-      Print x
-    End
+    Print i
   End
-  x = x + 1
 End
 ```
 
-### String manipulation
+### Array sum
 ```language
-name = "language"
-Print Upper(name)
-Print Length(name)
-Print Contains(name, "ang")
-Print Substring(name, 0, 4)
+nums = [10, 20, 30, 40, 50]
+total = 0
+i = 0
+While i < Length(nums)
+  total = total + nums[i]
+  i = i + 1
+End
+Print total
 ```
-
-## Contributing
-
-This is an experimental project. Feel free to explore the code and see how a programming language is built step by step!
 
 ## License
 

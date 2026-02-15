@@ -1,31 +1,44 @@
-# This is a comment #
-x = 10
-y = 20
+# For loops #
+For i = 1 To 5
+  Print i
+End
 
-# Test If/Else #
-If x > y
-  Print "x is bigger"
+# Arrays #
+nums = [10, 20, 30, 40, 50]
+Print nums[0]
+Print nums[4]
+nums[2] = 99
+Print nums[2]
+Print Length(nums)
+
+# Push and Pop #
+arr = [1, 2, 3]
+Push(arr, 4)
+Print Length(arr)
+Pop(arr)
+Print Length(arr)
+
+# Elif #
+x = 50
+If x < 10
+  Print "small"
+Elif x < 100
+  Print "medium"
 Else
-  Print "y is bigger"
+  Print "large"
 End
 
-# Test functions #
-Func add(a, b)
-  Return a + b
+# Booleans #
+a = True
+b = False
+Print a
+Print b
+
+# Logical operators #
+If a And Not b
+  Print "logic works"
 End
 
-result = add(5, 3)
-Print result
-
-# Test string operations #
-name = "Hello"
-Print Length(name)
-Print Upper(name)
-Print Lower(name)
-Print Contains(name, "ell")
-
-greeting = "Hello" + " " + "World"
-Print greeting
-
-# Test inline comment # z = 99
-Print z
+If True Or False
+  Print "or works"
+End

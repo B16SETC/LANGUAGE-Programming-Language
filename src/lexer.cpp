@@ -12,17 +12,13 @@ void Lexer::advance() {
 }
 
 void Lexer::skip_whitespace_inline() {
-    while (current_char != '\0' && current_char != '\n' && std::isspace(current_char)) {
+    while (current_char != '\0' && current_char != '\n' && std::isspace(current_char))
         advance();
-    }
 }
 
 int Lexer::count_indent() {
     int spaces = 0;
-    while (current_char == ' ') {
-        spaces++;
-        advance();
-    }
+    while (current_char == ' ') { spaces++; advance(); }
     return spaces / 2;
 }
 
@@ -55,9 +51,8 @@ Token Lexer::string_literal() {
         }
         advance();
     }
-    if (current_char != '"') {
+    if (current_char != '"')
         throw std::runtime_error("Unterminated string on line " + std::to_string(start_line));
-    }
     advance();
     return {TokenType::STRING, str, start_line, current_indent};
 }
@@ -71,11 +66,19 @@ Token Lexer::identifier() {
     }
     if (id == "Print")  return {TokenType::PRINT,  id, start_line, current_indent};
     if (id == "If")     return {TokenType::IF,     id, start_line, current_indent};
+    if (id == "Elif")   return {TokenType::ELIF,   id, start_line, current_indent};
     if (id == "Else")   return {TokenType::ELSE,   id, start_line, current_indent};
     if (id == "While")  return {TokenType::WHILE,  id, start_line, current_indent};
+    if (id == "For")    return {TokenType::FOR,    id, start_line, current_indent};
+    if (id == "To")     return {TokenType::TO,     id, start_line, current_indent};
     if (id == "Func")   return {TokenType::FUNC,   id, start_line, current_indent};
     if (id == "Return") return {TokenType::RETURN, id, start_line, current_indent};
     if (id == "End")    return {TokenType::END,    id, start_line, current_indent};
+    if (id == "And")    return {TokenType::AND,    id, start_line, current_indent};
+    if (id == "Or")     return {TokenType::OR,     id, start_line, current_indent};
+    if (id == "Not")    return {TokenType::NOT,    id, start_line, current_indent};
+    if (id == "True")   return {TokenType::TRUE,   id, start_line, current_indent};
+    if (id == "False")  return {TokenType::FALSE,  id, start_line, current_indent};
     return {TokenType::IDENTIFIER, id, start_line, current_indent};
 }
 
@@ -95,17 +98,13 @@ std::vector<Token> Lexer::tokenize() {
         }
 
         if (in_comment) {
-            if (current_char == '\n') {
-                line++;
-                at_line_start = true;
-            }
+            if (current_char == '\n') { line++; at_line_start = true; }
             advance();
             continue;
         }
 
         if (at_line_start && current_char != '\n') {
             int indent = count_indent();
-
             if (current_char == '\0' || current_char == '\n') continue;
 
             if (indent > indent_stack.top()) {
@@ -141,8 +140,8 @@ std::vector<Token> Lexer::tokenize() {
 
         if (current_char == '=') {
             advance();
-            if (current_char == '=') { tokens.push_back({TokenType::EQUAL, "==", current_line, current_indent}); advance(); }
-            else                     { tokens.push_back({TokenType::ASSIGN, "=", current_line, current_indent}); }
+            if (current_char == '=') { tokens.push_back({TokenType::EQUAL,  "==", current_line, current_indent}); advance(); }
+            else                     { tokens.push_back({TokenType::ASSIGN,  "=", current_line, current_indent}); }
             continue;
         }
         if (current_char == '!') {
@@ -153,14 +152,14 @@ std::vector<Token> Lexer::tokenize() {
         }
         if (current_char == '<') {
             advance();
-            if (current_char == '=') { tokens.push_back({TokenType::LESS_EQUAL, "<=", current_line, current_indent}); advance(); }
-            else                     { tokens.push_back({TokenType::LESS_THAN, "<", current_line, current_indent}); }
+            if (current_char == '=') { tokens.push_back({TokenType::LESS_EQUAL,    "<=", current_line, current_indent}); advance(); }
+            else                     { tokens.push_back({TokenType::LESS_THAN,       "<", current_line, current_indent}); }
             continue;
         }
         if (current_char == '>') {
             advance();
             if (current_char == '=') { tokens.push_back({TokenType::GREATER_EQUAL, ">=", current_line, current_indent}); advance(); }
-            else                     { tokens.push_back({TokenType::GREATER_THAN, ">", current_line, current_indent}); }
+            else                     { tokens.push_back({TokenType::GREATER_THAN,   ">", current_line, current_indent}); }
             continue;
         }
 
@@ -171,6 +170,8 @@ std::vector<Token> Lexer::tokenize() {
             case '/': tokens.push_back({TokenType::DIVIDE,   "/", current_line, current_indent}); advance(); break;
             case '(': tokens.push_back({TokenType::LPAREN,   "(", current_line, current_indent}); advance(); break;
             case ')': tokens.push_back({TokenType::RPAREN,   ")", current_line, current_indent}); advance(); break;
+            case '[': tokens.push_back({TokenType::LBRACKET, "[", current_line, current_indent}); advance(); break;
+            case ']': tokens.push_back({TokenType::RBRACKET, "]", current_line, current_indent}); advance(); break;
             case ',': tokens.push_back({TokenType::COMMA,    ",", current_line, current_indent}); advance(); break;
             default:  throw std::runtime_error("Unknown character: " + std::string(1, current_char));
         }
