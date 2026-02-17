@@ -366,7 +366,7 @@
         <div class="editor-container" id="editor"></div>
 
         <div class="controls">
-          <button class="btn btn-run" onclick="runCode()">▶ Run Code</button>
+          <button class="btn btn-run" onclick="runCode()">💾 Save & Get Run Instructions</button>
           <button class="btn btn-submit" onclick="submitExercise()">Submit & Check</button>
         </div>
 
@@ -379,7 +379,7 @@
   <script>
     // GOOGLE SHEETS API CONFIGURATION
     // Replace this with your deployed Apps Script URL
-    const SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxvQ3lgncHmUijF7SbIXTxZRRUPwQVcrz_yWm6DxguoizA64ld1UAi_TIF_Z8D5_iY4jw/exec';
     
     // Course Data
     const LESSONS = [
@@ -630,7 +630,26 @@ End</pre>
     function runCode() {
       const code = editor.getValue();
       const output = document.getElementById('output');
-      output.textContent = 'Running... (LANGUAGE interpreter not available in browser)\n\nThis is a demo. Download LANGUAGE to run code locally.';
+      
+      // Create a downloadable .LANGUAGE file
+      const blob = new Blob([code], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const filename = `lesson${currentLesson + 1}.LANGUAGE`;
+      
+      output.innerHTML = `<strong style="color:var(--accent)">To run this code:</strong>
+
+<strong>1. Save your code:</strong>
+   <a href="${url}" download="${filename}" style="color:var(--accent2);text-decoration:underline;">Download ${filename}</a>
+
+<strong>2. Run it with LANGUAGE:</strong>
+   <span style="color:#888">$ </span>LANGUAGE ${filename}
+
+<strong>Don't have LANGUAGE installed?</strong>
+   <a href="index.html#install" style="color:var(--accent2);text-decoration:underline;">Get LANGUAGE</a> (Linux RPM or Windows installer)
+
+<strong>Your code:</strong>
+<span style="color:#666">${code.split('\n').slice(0, 5).join('\n')}${code.split('\n').length > 5 ? '\n...' : ''}</span>`;
+      
       output.className = 'output';
     }
 
@@ -662,7 +681,7 @@ End</pre>
       localStorage.setItem('language_academy_progress', JSON.stringify(progressData));
       
       // Save to Google Sheets
-      if (SCRIPT_URL && SCRIPT_URL !== 'https://script.google.com/macros/s/AKfycbxvQ3lgncHmUijF7SbIXTxZRRUPwQVcrz_yWm6DxguoizA64ld1UAi_TIF_Z8D5_iY4jw/exec') {
+      if (SCRIPT_URL && SCRIPT_URL !== 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec') {
         fetch(SCRIPT_URL, {
           method: 'POST',
           mode: 'no-cors', // Required for Google Apps Script
@@ -684,7 +703,7 @@ End</pre>
       if (localProgress) completedLessons = new Set(JSON.parse(localProgress));
       
       // Then load from Google Sheets (if available)
-      if (userEmail && SCRIPT_URL && SCRIPT_URL !== 'https://script.google.com/macros/s/AKfycbxvQ3lgncHmUijF7SbIXTxZRRUPwQVcrz_yWm6DxguoizA64ld1UAi_TIF_Z8D5_iY4jw/exec') {
+      if (userEmail && SCRIPT_URL && SCRIPT_URL !== 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec') {
         fetch(SCRIPT_URL + '?action=load&email=' + encodeURIComponent(userEmail))
           .then(res => res.json())
           .then(data => {
