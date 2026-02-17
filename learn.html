@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LANGUAGE Academy — Learn Programming</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0a;
+      --surface: #111111;
+      --border: #222222;
+      --accent: #e8ff47;
+      --accent2: #47ffb2;
+      --text: #f0f0f0;
+      --muted: #555;
+      --success: #47ffb2;
+      --error: #ff5f57;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      overflow-x: hidden;
+    }
+
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem 3rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10,10,10,0.95);
+      backdrop-filter: blur(12px);
+    }
+
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: 0.15em;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .nav-progress {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    .nav-progress span { color: var(--accent); }
+
+    .container {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      height: 100vh;
+      padding-top: 70px;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      background: var(--surface);
+    }
+
+    .lesson-item {
+      padding: 1.2rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .lesson-item:hover { background: #0d0d0d; }
+    .lesson-item.active {
+      background: #0d0d0d;
+      border-left: 3px solid var(--accent);
+    }
+
+    .lesson-item.completed {
+      background: rgba(71, 255, 178, 0.05);
+      border-left: 3px solid var(--success);
+    }
+
+    .lesson-num {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      margin-bottom: 0.3rem;
+    }
+
+    .lesson-title {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .lesson-item.completed .lesson-title::after {
+      content: ' ✓';
+      color: var(--success);
+      margin-left: 0.5rem;
+    }
+
+    /* MAIN CONTENT */
+    .content {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .theory {
+      flex: 0 0 auto;
+      padding: 2.5rem 3rem;
+      border-bottom: 1px solid var(--border);
+      overflow-y: auto;
+      max-height: 40vh;
+    }
+
+    .theory h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.05em;
+    }
+
+    .theory p {
+      color: #aaa;
+      line-height: 1.8;
+      margin: 1rem 0;
+    }
+
+    .theory code {
+      font-family: 'Space Mono', monospace;
+      background: var(--surface);
+      padding: 0.2rem 0.5rem;
+      border-radius: 3px;
+      color: var(--accent);
+      font-size: 0.85rem;
+    }
+
+    .theory pre {
+      background: var(--surface);
+      padding: 1rem;
+      border-left: 3px solid var(--accent);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.8;
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+
+    .theory strong { color: var(--accent); }
+
+    .exercise {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 2rem 3rem;
+    }
+
+    .exercise-header {
+      margin-bottom: 1rem;
+    }
+
+    .exercise-header h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+
+    .exercise-header p {
+      color: #888;
+      font-size: 0.9rem;
+    }
+
+    .editor-container {
+      flex: 1;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      margin-bottom: 1rem;
+      min-height: 200px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .btn {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.8rem 1.5rem;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-run {
+      background: var(--accent);
+      color: var(--bg);
+    }
+
+    .btn-run:hover {
+      background: #fff;
+      transform: translateY(-2px);
+    }
+
+    .btn-run:disabled {
+      background: #333;
+      color: #666;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-submit {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-submit:hover {
+      border-color: var(--accent2);
+      color: var(--accent2);
+    }
+
+    .output {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 1rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.8;
+      min-height: 100px;
+      max-height: 150px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+
+    .output.error { border-color: var(--error); color: var(--error); }
+    .output.success { border-color: var(--success); color: var(--success); }
+
+    .feedback {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-left: 3px solid var(--accent);
+      background: rgba(232, 255, 71, 0.05);
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .feedback.show { display: block; }
+    .feedback.success { border-color: var(--success); background: rgba(71, 255, 178, 0.05); }
+    .feedback.error { border-color: var(--error); background: rgba(255, 95, 87, 0.05); }
+
+    /* LOGIN MODAL */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal.hidden { display: none; }
+
+    .modal-content {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 3rem;
+      max-width: 400px;
+      width: 90%;
+    }
+
+    .modal-content h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .modal-content p {
+      color: #888;
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+
+    .modal-content input {
+      width: 100%;
+      padding: 0.8rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    .modal-content input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    @media (max-width: 900px) {
+      .container { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      nav { padding: 1rem; }
+      .theory, .exercise { padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Login Modal -->
+  <div class="modal" id="loginModal">
+    <div class="modal-content">
+      <h2>Welcome to LANGUAGE Academy</h2>
+      <p>Enter your email to save your progress across devices:</p>
+      <input type="email" id="emailInput" placeholder="your@email.com" />
+      <button class="btn btn-run" onclick="login()">Start Learning</button>
+      <p style="margin-top:1rem;font-size:0.75rem;color:#555;">Your progress is saved in a Google Sheet. No account needed.</p>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <nav>
+    <a href="index.html" class="nav-logo">LANGUAGE ACADEMY</a>
+    <div class="nav-progress">
+      Progress: <span id="progressText">0/10</span>
+    </div>
+  </nav>
+
+  <div class="container">
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <!-- Lessons populated by JS -->
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+      <div class="theory" id="theory">
+        <!-- Theory content -->
+      </div>
+
+      <div class="exercise">
+        <div class="exercise-header">
+          <h2>Exercise</h2>
+          <p id="exerciseDesc">Complete the task below</p>
+        </div>
+
+        <div class="editor-container" id="editor"></div>
+
+        <div class="controls">
+          <button class="btn btn-run" onclick="runCode()">▶ Run Code</button>
+          <button class="btn btn-submit" onclick="submitExercise()">Submit & Check</button>
+        </div>
+
+        <div class="output" id="output">Output will appear here...</div>
+        <div class="feedback" id="feedback"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // GOOGLE SHEETS API CONFIGURATION
+    // Replace this with your deployed Apps Script URL
+    const SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec';
+    
+    // Course Data
+    const LESSONS = [
+      {
+        id: 1,
+        title: "Your First Program",
+        theory: `
+          <h1>Lesson 1: Your First Program</h1>
+          <p>Every programming language starts with Hello World. In LANGUAGE, it's one line:</p>
+          <pre>Print "Hello World"</pre>
+          <p><code>Print</code> is a command that outputs text. That's it. No imports, no setup, just write and run.</p>
+          <p><strong>Try it yourself:</strong> Write a program that prints your name.</p>
+        `,
+        exerciseDesc: "Write a program that prints your name using Print",
+        starterCode: "# Write your code here\n",
+        expectedOutput: (output, code) => output.trim().length > 0 && code.includes("Print"),
+        hint: "Use: Print \"Your Name\""
+      },
+      {
+        id: 2,
+        title: "Variables & Math",
+        theory: `
+          <h1>Lesson 2: Variables & Math</h1>
+          <p>Variables store values. Think of them as labeled boxes:</p>
+          <pre>x = 10
+y = 5
+Print x + y</pre>
+          <p>LANGUAGE supports <code>+</code> <code>-</code> <code>*</code> <code>/</code> for math.</p>
+          <p><strong>Important:</strong> Variable names are case-sensitive. <code>x</code> and <code>X</code> are different!</p>
+        `,
+        exerciseDesc: "Create two variables and print their sum",
+        starterCode: "# Create variables a and b\n# Print their sum\n",
+        expectedOutput: (output) => !isNaN(output.trim()),
+        hint: "a = 5, b = 3, Print a + b"
+      },
+      {
+        id: 3,
+        title: "User Input",
+        theory: `
+          <h1>Lesson 3: Getting User Input</h1>
+          <p>Programs are more interesting when they interact with users:</p>
+          <pre>name = Input("What is your name? ")
+Print "Hello " + name</pre>
+          <p><code>Input()</code> prompts the user and returns what they type as a string.</p>
+          <p>The <code>+</code> operator joins (concatenates) strings together.</p>
+        `,
+        exerciseDesc: "Ask for a name and greet them",
+        starterCode: "# Ask for the user's name\n# Print a greeting\n",
+        expectedOutput: (output, code) => code.includes("Input") && code.includes("Print"),
+        hint: "name = Input(...), then Print \"Hello \" + name"
+      },
+      {
+        id: 4,
+        title: "If Statements",
+        theory: `
+          <h1>Lesson 4: Making Decisions</h1>
+          <p>If statements let your program make choices:</p>
+          <pre>x = 10
+If x > 5
+  Print "x is big"
+End</pre>
+          <p>The code inside only runs if the condition is <strong>true</strong>.</p>
+          <p>Use <code>==</code> for equals, <code>!=</code> for not equals, <code>&lt;</code> <code>&gt;</code> for comparisons.</p>
+        `,
+        exerciseDesc: "Check if a number is greater than 100",
+        starterCode: "x = 150\n# Write an If statement\n",
+        expectedOutput: (output, code) => code.includes("If") && code.includes("End"),
+        hint: "If x > 100 ... End"
+      },
+      {
+        id: 5,
+        title: "Elif and Else",
+        theory: `
+          <h1>Lesson 5: Multiple Conditions</h1>
+          <p>Handle multiple cases with Elif and Else:</p>
+          <pre>score = 85
+If score >= 90
+  Print "A"
+Elif score >= 80
+  Print "B"
+Else
+  Print "C"
+End</pre>
+          <p>Checks happen in order. First true condition wins.</p>
+        `,
+        exerciseDesc: "Write a grade checker (90+ = A, 80+ = B, else C)",
+        starterCode: "score = 75\n# Write If/Elif/Else\n",
+        expectedOutput: (output, code) => code.includes("Elif") && code.includes("Else"),
+        hint: "If score >= 90 ... Elif score >= 80 ... Else ... End"
+      },
+      {
+        id: 6,
+        title: "For Loops",
+        theory: `
+          <h1>Lesson 6: Repeating Code</h1>
+          <p>For loops count through a range:</p>
+          <pre>For i = 1 To 5
+  Print i
+End</pre>
+          <p>This prints 1, 2, 3, 4, 5. The variable <code>i</code> changes each time.</p>
+        `,
+        exerciseDesc: "Print numbers 1 to 10 using a For loop",
+        starterCode: "# Write a For loop\n",
+        expectedOutput: (output) => output.includes("1") && output.includes("10"),
+        hint: "For i = 1 To 10 ... End"
+      },
+      {
+        id: 7,
+        title: "Functions",
+        theory: `
+          <h1>Lesson 7: Reusable Code</h1>
+          <p>Functions are named blocks you can call multiple times:</p>
+          <pre>Func greet(name)
+  Print "Hello " + name
+End
+
+greet("Alice")
+greet("Bob")</pre>
+          <p>Use <code>Return</code> to send a value back.</p>
+        `,
+        exerciseDesc: "Create a function that adds two numbers",
+        starterCode: "# Define a function add(a, b)\n# Call it with add(3, 7)\n",
+        expectedOutput: (output, code) => code.includes("Func") && code.includes("Return"),
+        hint: "Func add(a, b) ... Return a + b ... End"
+      },
+      {
+        id: 8,
+        title: "Arrays",
+        theory: `
+          <h1>Lesson 8: Lists of Values</h1>
+          <p>Arrays store multiple values:</p>
+          <pre>nums = [10, 20, 30]
+Print nums[0]
+Print Length(nums)</pre>
+          <p>Arrays start at index 0. Use <code>Push()</code> to add, <code>Pop()</code> to remove.</p>
+        `,
+        exerciseDesc: "Create an array and print its first element",
+        starterCode: "# Create an array\n# Print first element\n",
+        expectedOutput: (output, code) => code.includes("[") && code.includes("]"),
+        hint: "nums = [1, 2, 3], Print nums[0]"
+      },
+      {
+        id: 9,
+        title: "Type Conversion",
+        theory: `
+          <h1>Lesson 9: Converting Types</h1>
+          <p>Input returns strings. Convert with <code>ToNumber()</code>:</p>
+          <pre>age_str = Input("Age: ")
+age = ToNumber(age_str)
+Print age + 1</pre>
+          <p>Use <code>ToString()</code> to convert numbers to strings.</p>
+        `,
+        exerciseDesc: "Ask for a number and print it + 10",
+        starterCode: "# Use Input and ToNumber\n",
+        expectedOutput: (output, code) => code.includes("ToNumber"),
+        hint: "num = ToNumber(Input(...)), Print num + 10"
+      },
+      {
+        id: 10,
+        title: "Error Handling",
+        theory: `
+          <h1>Lesson 10: Try/Catch</h1>
+          <p>Handle errors gracefully:</p>
+          <pre>Try
+  x = ToNumber("oops")
+Catch(err)
+  Print "Error: " + err
+End</pre>
+          <p>Code in <code>Try</code> runs. If it fails, <code>Catch</code> handles the error.</p>
+        `,
+        exerciseDesc: "Catch an error when converting invalid input",
+        starterCode: "# Use Try/Catch with ToNumber\n",
+        expectedOutput: (output, code) => code.includes("Try") && code.includes("Catch"),
+        hint: "Try ... ToNumber(\"abc\") ... Catch(err) ... End"
+      }
+    ];
+
+    // State
+    let currentLesson = 0;
+    let completedLessons = new Set();
+    let userEmail = '';
+    let editor;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      loadProgress();
+      if (!userEmail) {
+        document.getElementById('loginModal').classList.remove('hidden');
+      } else {
+        initEditor();
+        renderSidebar();
+        loadLesson(0);
+      }
+    });
+
+    function login() {
+      const email = document.getElementById('emailInput').value.trim();
+      if (!email || !email.includes('@')) {
+        alert('Please enter a valid email');
+        return;
+      }
+      userEmail = email;
+      localStorage.setItem('language_academy_email', email);
+      document.getElementById('loginModal').classList.add('hidden');
+      initEditor();
+      renderSidebar();
+      loadLesson(0);
+    }
+
+    function initEditor() {
+      require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs' } });
+      require(['vs/editor/editor.main'], function () {
+        editor = monaco.editor.create(document.getElementById('editor'), {
+          value: '',
+          language: 'plaintext',
+          theme: 'vs-dark',
+          fontSize: 14,
+          minimap: { enabled: false },
+          scrollBeyondLastLine: false,
+          automaticLayout: true
+        });
+      });
+    }
+
+    function renderSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.innerHTML = LESSONS.map((lesson, idx) => `
+        <div class="lesson-item ${currentLesson === idx ? 'active' : ''} ${completedLessons.has(idx) ? 'completed' : ''}"
+             onclick="loadLesson(${idx})">
+          <div class="lesson-num">LESSON ${lesson.id}</div>
+          <div class="lesson-title">${lesson.title}</div>
+        </div>
+      `).join('');
+    }
+
+    function loadLesson(idx) {
+      currentLesson = idx;
+      const lesson = LESSONS[idx];
+      document.getElementById('theory').innerHTML = lesson.theory;
+      document.getElementById('exerciseDesc').textContent = lesson.exerciseDesc;
+      editor.setValue(lesson.starterCode);
+      document.getElementById('output').textContent = 'Output will appear here...';
+      document.getElementById('output').className = 'output';
+      document.getElementById('feedback').classList.remove('show');
+      renderSidebar();
+    }
+
+    function runCode() {
+      const code = editor.getValue();
+      const output = document.getElementById('output');
+      output.textContent = 'Running... (LANGUAGE interpreter not available in browser)\n\nThis is a demo. Download LANGUAGE to run code locally.';
+      output.className = 'output';
+    }
+
+    function submitExercise() {
+      const code = editor.getValue();
+      const lesson = LESSONS[currentLesson];
+      const output = "Mock output"; // In real version, would run code
+      
+      const passed = lesson.expectedOutput(output, code);
+      const feedback = document.getElementById('feedback');
+      
+      if (passed) {
+        feedback.textContent = '✓ Correct! Moving to next lesson...';
+        feedback.className = 'feedback show success';
+        completedLessons.add(currentLesson);
+        saveProgress();
+        updateProgress();
+        setTimeout(() => {
+          if (currentLesson < LESSONS.length - 1) loadLesson(currentLesson + 1);
+        }, 1500);
+      } else {
+        feedback.textContent = `✗ Not quite. Hint: ${lesson.hint}`;
+        feedback.className = 'feedback show error';
+      }
+    }
+
+    function saveProgress() {
+      const progressData = [...completedLessons];
+      localStorage.setItem('language_academy_progress', JSON.stringify(progressData));
+      
+      // Save to Google Sheets
+      if (SCRIPT_URL && SCRIPT_URL !== 'https://script.google.com/macros/s/AKfycbxvQ3lgncHmUijF7SbIXTxZRRUPwQVcrz_yWm6DxguoizA64ld1UAi_TIF_Z8D5_iY4jw/exec') {
+        fetch(SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors', // Required for Google Apps Script
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'save',
+            email: userEmail,
+            completedLessons: progressData
+          })
+        }).catch(err => console.log('Save to cloud failed (offline?):', err));
+      }
+    }
+
+    function loadProgress() {
+      userEmail = localStorage.getItem('language_academy_email') || '';
+      
+      // Load from localStorage first (instant)
+      const localProgress = localStorage.getItem('language_academy_progress');
+      if (localProgress) completedLessons = new Set(JSON.parse(localProgress));
+      
+      // Then load from Google Sheets (if available)
+      if (userEmail && SCRIPT_URL && SCRIPT_URL !== 'https://script.google.com/macros/s/AKfycbxvQ3lgncHmUijF7SbIXTxZRRUPwQVcrz_yWm6DxguoizA64ld1UAi_TIF_Z8D5_iY4jw/exec') {
+        fetch(SCRIPT_URL + '?action=load&email=' + encodeURIComponent(userEmail))
+          .then(res => res.json())
+          .then(data => {
+            if (data.success && data.completedLessons) {
+              completedLessons = new Set(data.completedLessons);
+              localStorage.setItem('language_academy_progress', JSON.stringify(data.completedLessons));
+              updateProgress();
+              renderSidebar();
+            }
+          })
+          .catch(err => console.log('Load from cloud failed (using local):', err));
+      }
+      
+      updateProgress();
+    }
+
+    function updateProgress() {
+      document.getElementById('progressText').textContent = `${completedLessons.size}/${LESSONS.length}`;
+    }
+  </script>
+</body>
+</html>

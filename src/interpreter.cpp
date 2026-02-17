@@ -1,5 +1,7 @@
 #include "interpreter.h"
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <stdexcept>
 #include <algorithm>
 #include <cmath>
@@ -14,6 +16,26 @@ Value Interpreter::evaluate(ASTNode* node) {
 
         case NodeType::BOOLEAN:
             return Value(static_cast<BooleanNode*>(node)->value);
+
+        case NodeType::INPUT: {
+            auto* inp = static_cast<InputNode*>(node);
+            Value prompt = evaluate(inp->prompt.get());
+            std::cout << prompt.to_string();
+            std::string line;
+            std::getline(std::cin, line);
+            return Value(line);
+        }
+
+        case NodeType::READFILE: {
+            auto* rf = static_cast<ReadFileNode*>(node);
+            Value path = evaluate(rf->path.get());
+            if (!path.is_string()) throw std::runtime_error("ReadFile requires a string path");
+            std::ifstream file(path.string);
+            if (!file.is_open()) throw std::runtime_error("Cannot open file: " + path.string);
+            std::stringstream buf;
+            buf << file.rdbuf();
+            return Value(buf.str());
+        }
 
         case NodeType::ARRAY: {
             auto* arr = static_cast<ArrayNode*>(node);
@@ -148,6 +170,31 @@ Value Interpreter::evaluate(ASTNode* node) {
                 target.array->pop_back();
                 return last;
             }
+            // Math built-ins
+            if (op->op == "Floor")  return Value(std::floor(target.number));
+            if (op->op == "Ceil")   return Value(std::ceil(target.number));
+            if (op->op == "Sqrt") {
+                if (target.number < 0) throw std::runtime_error("Sqrt of negative number");
+                return Value(std::sqrt(target.number));
+            }
+            if (op->op == "Abs")    return Value(std::abs(target.number));
+            if (op->op == "Power") {
+                Value exp = evaluate(op->args[0].get());
+                return Value(std::pow(target.number, exp.number));
+            }
+            // Type conversion
+            if (op->op == "ToNumber") {
+                if (target.is_number()) return target;
+                if (target.is_string()) {
+                    try { return Value(std::stod(target.string)); }
+                    catch (...) { throw std::runtime_error("Cannot convert \"" + target.string + "\" to number"); }
+                }
+                if (target.is_boolean()) return Value(target.boolean ? 1.0 : 0.0);
+                throw std::runtime_error("Cannot convert value to number");
+            }
+            if (op->op == "ToString") {
+                return Value(target.to_string());
+            }
             throw std::runtime_error("Unknown operation: " + op->op);
         }
 
@@ -210,6 +257,28 @@ void Interpreter::execute_statement(ASTNode* node) {
             auto* print = static_cast<PrintNode*>(node);
             Value val = evaluate(print->expression.get());
             std::cout << val.to_string() << std::endl;
+            break;
+        }
+
+        case NodeType::WRITEFILE: {
+            auto* wf = static_cast<WriteFileNode*>(node);
+            Value path = evaluate(wf->path.get());
+            Value content = evaluate(wf->content.get());
+            if (!path.is_string()) throw std::runtime_error("WriteFile requires a string path");
+            std::ofstream file(path.string);
+            if (!file.is_open()) throw std::runtime_error("Cannot open file: " + path.string);
+            file << content.to_string();
+            break;
+        }
+
+        case NodeType::APPENDFILE: {
+            auto* af = static_cast<AppendFileNode*>(node);
+            Value path = evaluate(af->path.get());
+            Value content = evaluate(af->content.get());
+            if (!path.is_string()) throw std::runtime_error("AppendFile requires a string path");
+            std::ofstream file(path.string, std::ios::app);
+            if (!file.is_open()) throw std::runtime_error("Cannot open file: " + path.string);
+            file << content.to_string();
             break;
         }
 
@@ -297,6 +366,21 @@ void Interpreter::execute_statement(ASTNode* node) {
         case NodeType::RETURN_STATEMENT: {
             auto* ret = static_cast<ReturnNode*>(node);
             throw ReturnException(evaluate(ret->value.get()));
+        }
+
+        case NodeType::TRY_CATCH: {
+            auto* tc = static_cast<TryCatchNode*>(node);
+            try {
+                for (const auto& stmt : tc->try_body)
+                    execute_statement(stmt.get());
+            } catch (ReturnException&) {
+                throw; // let return propagate
+            } catch (const std::exception& e) {
+                variables[tc->error_var] = Value(std::string(e.what()));
+                for (const auto& stmt : tc->catch_body)
+                    execute_statement(stmt.get());
+            }
+            break;
         }
 
         default:

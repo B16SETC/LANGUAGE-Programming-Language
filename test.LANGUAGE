@@ -1,13 +1,13 @@
-# For loops #
+# Day 5 tests - For loop #
 For i = 1 To 5
   Print i
 End
 
-# Arrays #
-nums = [10, 20, 30, 40, 50]
+# Array tests #
+nums = [10, 50, 30, 20, 99]
+nums[2] = 99
 Print nums[0]
 Print nums[4]
-nums[2] = 99
 Print nums[2]
 Print Length(nums)
 
@@ -18,7 +18,7 @@ Print Length(arr)
 Pop(arr)
 Print Length(arr)
 
-# Elif #
+# Elif test #
 x = 50
 If x < 10
   Print "small"
@@ -35,10 +35,35 @@ Print a
 Print b
 
 # Logical operators #
-If a And Not b
+If True And Not False
   Print "logic works"
 End
-
 If True Or False
   Print "or works"
 End
+
+# Day 6 tests - Type conversion #
+n = ToNumber("42")
+Print n
+s = ToString(100)
+Print s
+
+# Math built-ins #
+Print Floor(4.9)
+Print Ceil(4.1)
+Print Sqrt(16)
+Print Abs(-7)
+Print Power(2, 8)
+
+# Try / Catch #
+Try
+  x = ToNumber("not a number")
+Catch(err)
+  Print "caught error"
+End
+
+# File I/O #
+WriteFile("test_output.txt", "Hello from LANGUAGE 1.0.0!")
+contents = ReadFile("test_output.txt")
+Print contents
+AppendFile("test_output.txt", " Appended!")
