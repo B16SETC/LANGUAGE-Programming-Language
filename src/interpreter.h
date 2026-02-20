@@ -54,6 +54,9 @@ struct ReturnException {
     ReturnException(Value v) : value(v) {}
 };
 
+struct BreakException {};
+struct ContinueException {};
+
 class Interpreter {
 public:
     void execute(const std::vector<std::unique_ptr<ASTNode>>& statements);

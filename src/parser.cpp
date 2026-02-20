@@ -57,6 +57,34 @@ std::unique_ptr<ASTNode> Parser::factor() {
         advance();
         return std::make_unique<NotOpNode>(logical());
     }
+    if (token.type == TokenType::INPUT) {
+        advance();
+        if (current_token.type != TokenType::LPAREN)
+            throw std::runtime_error("Expected '(' after Input");
+        advance();
+        std::unique_ptr<ASTNode> prompt;
+        if (current_token.type != TokenType::RPAREN)
+            prompt = logical();
+        else
+            prompt = std::make_unique<StringNode>("");
+        if (current_token.type != TokenType::RPAREN)
+            throw std::runtime_error("Expected ')' after Input prompt");
+        advance();
+        return std::make_unique<InputNode>(std::move(prompt));
+    }
+    
+    if (token.type == TokenType::READFILE) {
+        advance();
+        if (current_token.type != TokenType::LPAREN)
+            throw std::runtime_error("Expected '(' after ReadFile");
+        advance();
+        auto path = logical();
+        if (current_token.type != TokenType::RPAREN)
+            throw std::runtime_error("Expected ')' after ReadFile");
+        advance();
+        return std::make_unique<ReadFileNode>(std::move(path));
+    }
+    
     if (token.type == TokenType::LBRACKET) {
         advance();
         std::vector<std::unique_ptr<ASTNode>> elements;
@@ -108,6 +136,20 @@ std::unique_ptr<ASTNode> Parser::factor() {
                 std::vector<std::unique_ptr<ASTNode>> rest;
                 for (size_t i = 1; i < args.size(); i++) rest.push_back(std::move(args[i]));
                 return std::make_unique<StringOpNode>("Substring", std::move(target), std::move(rest));
+            }
+
+            // Math built-ins
+            if (token.value == "Floor" || token.value == "Ceil" || token.value == "Sqrt" ||
+                token.value == "Abs"   || token.value == "Power") {
+                auto target = std::move(args[0]);
+                std::vector<std::unique_ptr<ASTNode>> rest;
+                for (size_t i = 1; i < args.size(); i++) rest.push_back(std::move(args[i]));
+                return std::make_unique<StringOpNode>(token.value, std::move(target), std::move(rest));
+            }
+
+            // Type conversion
+            if (token.value == "ToNumber" || token.value == "ToString") {
+                return std::make_unique<StringOpNode>(token.value, std::move(args[0]), std::vector<std::unique_ptr<ASTNode>>{});
             }
 
             return std::make_unique<FuncCallNode>(token.value, std::move(args));
@@ -271,19 +313,97 @@ std::unique_ptr<ASTNode> Parser::func_def() {
     return std::make_unique<FuncDefNode>(name, std::move(params), std::move(body));
 }
 
+std::unique_ptr<ASTNode> Parser::try_statement() {
+    advance(); // consume Try
+    if (current_token.type != TokenType::NEWLINE)
+        throw std::runtime_error("Expected newline after Try");
+    advance();
+
+    auto try_body = parse_block();
+
+    if (current_token.type != TokenType::CATCH)
+        throw std::runtime_error("Expected Catch after Try block");
+    advance();
+
+    // Optional: Catch(err)
+    std::string error_var = "error";
+    if (current_token.type == TokenType::LPAREN) {
+        advance();
+        if (current_token.type != TokenType::IDENTIFIER)
+            throw std::runtime_error("Expected variable name in Catch");
+        error_var = current_token.value;
+        advance();
+        if (current_token.type != TokenType::RPAREN)
+            throw std::runtime_error("Expected ')' after Catch variable");
+        advance();
+    }
+
+    if (current_token.type != TokenType::NEWLINE)
+        throw std::runtime_error("Expected newline after Catch");
+    advance();
+
+    auto catch_body = parse_block();
+    if (current_token.type == TokenType::END) advance();
+    return std::make_unique<TryCatchNode>(std::move(try_body), error_var, std::move(catch_body));
+}
+
 std::unique_ptr<ASTNode> Parser::statement() {
     if (current_token.type == TokenType::PRINT) {
         advance();
         return std::make_unique<PrintNode>(logical());
     }
+    
+    if (current_token.type == TokenType::WRITEFILE) {
+        advance();
+        if (current_token.type != TokenType::LPAREN)
+            throw std::runtime_error("Expected '(' after WriteFile");
+        advance();
+        auto path = logical();
+        if (current_token.type != TokenType::COMMA)
+            throw std::runtime_error("Expected ',' in WriteFile");
+        advance();
+        auto content = logical();
+        if (current_token.type != TokenType::RPAREN)
+            throw std::runtime_error("Expected ')' after WriteFile");
+        advance();
+        return std::make_unique<WriteFileNode>(std::move(path), std::move(content));
+    }
+    
+    if (current_token.type == TokenType::APPENDFILE) {
+        advance();
+        if (current_token.type != TokenType::LPAREN)
+            throw std::runtime_error("Expected '(' after AppendFile");
+        advance();
+        auto path = logical();
+        if (current_token.type != TokenType::COMMA)
+            throw std::runtime_error("Expected ',' in AppendFile");
+        advance();
+        auto content = logical();
+        if (current_token.type != TokenType::RPAREN)
+            throw std::runtime_error("Expected ')' after AppendFile");
+        advance();
+        return std::make_unique<AppendFileNode>(std::move(path), std::move(content));
+    }
+    
     if (current_token.type == TokenType::IF)    return if_statement();
     if (current_token.type == TokenType::WHILE) return while_statement();
     if (current_token.type == TokenType::FOR)   return for_statement();
     if (current_token.type == TokenType::FUNC)  return func_def();
+    if (current_token.type == TokenType::TRY)   return try_statement();
 
     if (current_token.type == TokenType::RETURN) {
         advance();
         return std::make_unique<ReturnNode>(logical());
+    }
+
+    if (current_token.type == TokenType::BREAK) {
+        advance();
+        return std::make_unique<BreakNode>();
+    }
+
+    if (current_token.type == TokenType::CONTINUE) {
+        advance();
+        return std::make_unique<ContinueNode>();
     }
 
     if (current_token.type == TokenType::IDENTIFIER) {

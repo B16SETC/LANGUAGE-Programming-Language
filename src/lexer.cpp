@@ -25,6 +25,15 @@ int Lexer::count_indent() {
 Token Lexer::number() {
     std::string num;
     int start_line = line;
+    
+    // Handle negative numbers
+    bool is_negative = false;
+    if (current_char == '-') {
+        is_negative = true;
+        num += current_char;
+        advance();
+    }
+    
     while (current_char != '\0' && (std::isdigit(current_char) || current_char == '.')) {
         num += current_char;
         advance();
@@ -71,6 +80,8 @@ Token Lexer::identifier() {
     if (id == "While")  return {TokenType::WHILE,  id, start_line, current_indent};
     if (id == "For")    return {TokenType::FOR,    id, start_line, current_indent};
     if (id == "To")     return {TokenType::TO,     id, start_line, current_indent};
+    if (id == "Break")  return {TokenType::BREAK,  id, start_line, current_indent};
+    if (id == "Continue") return {TokenType::CONTINUE, id, start_line, current_indent};
     if (id == "Func")   return {TokenType::FUNC,   id, start_line, current_indent};
     if (id == "Return") return {TokenType::RETURN, id, start_line, current_indent};
     if (id == "End")    return {TokenType::END,    id, start_line, current_indent};
@@ -79,6 +90,12 @@ Token Lexer::identifier() {
     if (id == "Not")    return {TokenType::NOT,    id, start_line, current_indent};
     if (id == "True")   return {TokenType::TRUE,   id, start_line, current_indent};
     if (id == "False")  return {TokenType::FALSE,  id, start_line, current_indent};
+    if (id == "Input")  return {TokenType::INPUT,  id, start_line, current_indent};
+    if (id == "ReadFile") return {TokenType::READFILE, id, start_line, current_indent};
+    if (id == "WriteFile") return {TokenType::WRITEFILE, id, start_line, current_indent};
+    if (id == "AppendFile") return {TokenType::APPENDFILE, id, start_line, current_indent};
+    if (id == "Try")    return {TokenType::TRY,    id, start_line, current_indent};
+    if (id == "Catch")  return {TokenType::CATCH,  id, start_line, current_indent};
     return {TokenType::IDENTIFIER, id, start_line, current_indent};
 }
 
@@ -132,6 +149,13 @@ std::vector<Token> Lexer::tokenize() {
         }
 
         if (std::isspace(current_char)) { skip_whitespace_inline(); continue; }
+        
+        // Check if minus is a negative number (not an operator)
+        if (current_char == '-' && std::isdigit(source[pos + 1 < source.length() ? pos + 1 : pos])) {
+            tokens.push_back(number());
+            continue;
+        }
+        
         if (std::isdigit(current_char)) { tokens.push_back(number()); continue; }
         if (current_char == '"')        { tokens.push_back(string_literal()); continue; }
         if (std::isalpha(current_char) || current_char == '_') { tokens.push_back(identifier()); continue; }

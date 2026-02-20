@@ -17,13 +17,20 @@ enum class NodeType {
     COMPARISON,
     ASSIGNMENT,
     PRINT,
+    INPUT,
+    READFILE,
+    WRITEFILE,
+    APPENDFILE,
     IF_STATEMENT,
     WHILE_LOOP,
     FOR_LOOP,
+    BREAK_STATEMENT,
+    CONTINUE_STATEMENT,
     FUNC_DEF,
     FUNC_CALL,
     RETURN_STATEMENT,
-    STRING_OP
+    STRING_OP,
+    TRY_CATCH
 };
 
 struct ASTNode {
@@ -148,6 +155,14 @@ struct ForLoopNode : ASTNode {
         : var(v), start(std::move(s)), end(std::move(e)), body(std::move(b)) { type = NodeType::FOR_LOOP; }
 };
 
+struct BreakNode : ASTNode {
+    BreakNode() { type = NodeType::BREAK_STATEMENT; }
+};
+
+struct ContinueNode : ASTNode {
+    ContinueNode() { type = NodeType::CONTINUE_STATEMENT; }
+};
+
 struct FuncDefNode : ASTNode {
     std::string name;
     std::vector<std::string> params;
@@ -176,6 +191,39 @@ struct StringOpNode : ASTNode {
         : op(o), target(std::move(t)), args(std::move(a)) { type = NodeType::STRING_OP; }
 };
 
+struct InputNode : ASTNode {
+    std::unique_ptr<ASTNode> prompt;
+    InputNode(std::unique_ptr<ASTNode> p) : prompt(std::move(p)) { type = NodeType::INPUT; }
+};
+
+struct ReadFileNode : ASTNode {
+    std::unique_ptr<ASTNode> path;
+    ReadFileNode(std::unique_ptr<ASTNode> p) : path(std::move(p)) { type = NodeType::READFILE; }
+};
+
+struct WriteFileNode : ASTNode {
+    std::unique_ptr<ASTNode> path;
+    std::unique_ptr<ASTNode> content;
+    WriteFileNode(std::unique_ptr<ASTNode> p, std::unique_ptr<ASTNode> c) 
+        : path(std::move(p)), content(std::move(c)) { type = NodeType::WRITEFILE; }
+};
+
+struct AppendFileNode : ASTNode {
+    std::unique_ptr<ASTNode> path;
+    std::unique_ptr<ASTNode> content;
+    AppendFileNode(std::unique_ptr<ASTNode> p, std::unique_ptr<ASTNode> c) 
+        : path(std::move(p)), content(std::move(c)) { type = NodeType::APPENDFILE; }
+};
+
+struct TryCatchNode : ASTNode {
+    std::vector<std::unique_ptr<ASTNode>> try_body;
+    std::string error_var;
+    std::vector<std::unique_ptr<ASTNode>> catch_body;
+    TryCatchNode(std::vector<std::unique_ptr<ASTNode>> tb, const std::string& ev,
+                 std::vector<std::unique_ptr<ASTNode>> cb)
+        : try_body(std::move(tb)), error_var(ev), catch_body(std::move(cb)) { type = NodeType::TRY_CATCH; }
+};
+
 class Parser {
 public:
     Parser(const std::vector<Token>& tokens);
@@ -194,6 +242,7 @@ private:
     std::unique_ptr<ASTNode> while_statement();
     std::unique_ptr<ASTNode> for_statement();
     std::unique_ptr<ASTNode> func_def();
+    std::unique_ptr<ASTNode> try_statement();
     std::unique_ptr<ASTNode> logical();
     std::unique_ptr<ASTNode> comparison();
     std::unique_ptr<ASTNode> expression();

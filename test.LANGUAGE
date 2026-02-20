@@ -1,44 +1,76 @@
-# For loops #
-For i = 1 To 5
+# Day 7 - Break and Continue #
+
+# Test Break in While loop #
+Print "Break test:"
+x = 1
+While x <= 10
+  Print x
+  If x == 5
+    Break
+  End
+  x = x + 1
+End
+
+# Test Continue in While loop #
+Print "Continue test:"
+i = 0
+While i < 10
+  i = i + 1
+  If i == 3
+    Continue
+  End
+  If i == 7
+    Continue
+  End
   Print i
 End
 
-# Arrays #
-nums = [10, 20, 30, 40, 50]
-Print nums[0]
-Print nums[4]
-nums[2] = 99
-Print nums[2]
-Print Length(nums)
-
-# Push and Pop #
-arr = [1, 2, 3]
-Push(arr, 4)
-Print Length(arr)
-Pop(arr)
-Print Length(arr)
-
-# Elif #
-x = 50
-If x < 10
-  Print "small"
-Elif x < 100
-  Print "medium"
-Else
-  Print "large"
+# Test Break in For loop #
+Print "For Break test:"
+For j = 1 To 20
+  If j == 8
+    Break
+  End
+  Print j
 End
 
-# Booleans #
-a = True
-b = False
-Print a
-Print b
-
-# Logical operators #
-If a And Not b
-  Print "logic works"
+# Test Continue in For loop #
+Print "For Continue test:"
+For k = 1 To 10
+  If k == 4
+    Continue
+  End
+  If k == 6
+    Continue
+  End
+  Print k
 End
 
-If True Or False
-  Print "or works"
+# Nested loops with Break #
+Print "Nested Break test:"
+For outer = 1 To 3
+  For inner = 1 To 3
+    If inner == 2
+      Break
+    End
+    Print inner
+  End
+End
+
+# FizzBuzz with Continue #
+Print "FizzBuzz with Continue:"
+For n = 1 To 15
+  If n == 3
+    Print "Fizz"
+    Continue
+  End
+  If n == 5
+    Print "Buzz"
+    Continue
+  End
+  If n == 15
+    Print "FizzBuzz"
+    Continue
+  End
+  Print n
 End
