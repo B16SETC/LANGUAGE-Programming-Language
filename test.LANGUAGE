@@ -1,76 +1,294 @@
-# Day 7 - Break and Continue #
+# ================================ #
+# LANGUAGE v1.2.0 - Feature Showcase #
+# ================================ #
 
-# Test Break in While loop #
-Print "Break test:"
-x = 1
-While x <= 10
-  Print x
-  If x == 5
+Print "============================="
+Print "  LANGUAGE Feature Showcase"
+Print "============================="
+Print ""
+
+# -------------------- #
+# 1. VARIABLES & TYPES #
+# -------------------- #
+Print "--- 1. Variables & Types ---"
+
+numVar = 42
+floatVar = 3.14
+strVar = "Hello, World!"
+boolTrue = True
+boolFalse = False
+
+Print "Integer: " + ToString(numVar)
+Print "Float: " + ToString(floatVar)
+Print "String: " + strVar
+Print "Boolean True: " + ToString(boolTrue)
+Print "Boolean False: " + ToString(boolFalse)
+Print ""
+
+# ---------------------- #
+# 2. ARITHMETIC          #
+# ---------------------- #
+Print "--- 2. Arithmetic ---"
+
+a = 10
+b = 3
+
+Print "a = " + ToString(a) + ", b = " + ToString(b)
+Print "a + b = " + ToString(a + b)
+Print "a - b = " + ToString(a - b)
+Print "a * b = " + ToString(a * b)
+Print "a / b = " + ToString(a / b)
+Print ""
+
+# ---------------------- #
+# 3. STRING OPERATIONS   #
+# ---------------------- #
+Print "--- 3. String Operations ---"
+
+greeting = "Hello, LANGUAGE!"
+Print "Original: " + greeting
+Print "Upper: " + Upper(greeting)
+Print "Lower: " + Lower(greeting)
+Print "Length: " + ToString(Length(greeting))
+Print "Substring(7, 8): " + Substring(greeting, 7, 8)
+Print "Contains 'LANGUAGE': " + ToString(Contains(greeting, "LANGUAGE"))
+Print "Contains 'Python': " + ToString(Contains(greeting, "Python"))
+Print ""
+
+# ---------------------- #
+# 4. MATH BUILT-INS      #
+# ---------------------- #
+Print "--- 4. Math Built-ins ---"
+
+Print "Floor(3.7) = " + ToString(Floor(3.7))
+Print "Ceil(3.2) = " + ToString(Ceil(3.2))
+Print "Sqrt(144) = " + ToString(Sqrt(144))
+Print "Abs(-99) = " + ToString(Abs(-99))
+Print "Power(2, 10) = " + ToString(Power(2, 10))
+Print ""
+
+# ---------------------- #
+# 5. TYPE CONVERSION     #
+# ---------------------- #
+Print "--- 5. Type Conversion ---"
+
+numStr = "123"
+converted = ToNumber(numStr)
+Print "ToNumber(\"123\") + 1 = " + ToString(converted + 1)
+Print "ToString(9.5) = " + ToString(9.5)
+Print ""
+
+# ---------------------- #
+# 6. IF / ELIF / ELSE    #
+# ---------------------- #
+Print "--- 6. If / Elif / Else ---"
+
+score = 75
+
+If score >= 90
+  Print "Grade: A"
+Elif score >= 80
+  Print "Grade: B"
+Elif score >= 70
+  Print "Grade: C"
+Elif score >= 60
+  Print "Grade: D"
+Else
+  Print "Grade: F"
+End
+Print ""
+
+# ---------------------- #
+# 7. LOGICAL OPERATORS   #
+# ---------------------- #
+Print "--- 7. Logical Operators ---"
+
+x = 5
+
+If x > 0 And x < 10
+  Print "x is a single digit positive number"
+End
+
+If x < 0 Or x > 3
+  Print "x is either negative or greater than 3"
+End
+
+If Not x == 99
+  Print "x is not 99"
+End
+Print ""
+
+# ---------------------- #
+# 8. WHILE LOOP          #
+# ---------------------- #
+Print "--- 8. While Loop ---"
+
+count = 1
+While count <= 5
+  Print "Count: " + ToString(count)
+  count = count + 1
+End
+Print ""
+
+# ---------------------- #
+# 9. FOR LOOP            #
+# ---------------------- #
+Print "--- 9. For Loop ---"
+
+Print "Squares from 1 to 5:"
+For i = 1 To 5
+  Print "  " + ToString(i) + "^2 = " + ToString(i * i)
+End
+Print ""
+
+# ---------------------- #
+# 10. BREAK & CONTINUE   #
+# ---------------------- #
+Print "--- 10. Break & Continue ---"
+
+Print "Continue (skip evens):"
+For i = 1 To 8
+  If i * Floor(i / 2) == i And Not i == 1
+    Continue
+  End
+  Print "  " + ToString(i)
+End
+
+Print "Break (stop at 4):"
+For i = 1 To 10
+  If i > 4
     Break
   End
-  x = x + 1
+  Print "  " + ToString(i)
+End
+Print ""
+
+# ---------------------- #
+# 11. ARRAYS             #
+# ---------------------- #
+Print "--- 11. Arrays ---"
+
+fruits = ["Apple", "Banana", "Cherry"]
+Print "fruits = " + ToString(fruits)
+Print "fruits[0] = " + fruits[0]
+Print "fruits[1] = " + fruits[1]
+Print "Length of fruits = " + ToString(Length(fruits))
+
+fruits[1] = "Blueberry"
+Print "After fruits[1] = \"Blueberry\": " + ToString(fruits)
+
+Push(fruits, "Dragonfruit")
+Print "After Push \"Dragonfruit\": " + ToString(fruits)
+
+Pop(fruits)
+Print "After Pop: " + ToString(fruits)
+Print ""
+
+Print "Iterating array with For:"
+nums = [10, 20, 30, 40, 50]
+For i = 0 To Length(nums) - 1
+  Print "  nums[" + ToString(i) + "] = " + ToString(nums[i])
+End
+Print ""
+
+# ---------------------- #
+# 12. FUNCTIONS          #
+# ---------------------- #
+Print "--- 12. Functions ---"
+
+Func add(a, b)
+  Return a + b
 End
 
-# Test Continue in While loop #
-Print "Continue test:"
-i = 0
-While i < 10
-  i = i + 1
-  If i == 3
-    Continue
-  End
-  If i == 7
-    Continue
-  End
-  Print i
+Func greet(name)
+  Return "Hello, " + name + "!"
 End
 
-# Test Break in For loop #
-Print "For Break test:"
-For j = 1 To 20
-  If j == 8
-    Break
+Func max(a, b)
+  If a > b
+    Return a
   End
-  Print j
+  Return b
 End
 
-# Test Continue in For loop #
-Print "For Continue test:"
-For k = 1 To 10
-  If k == 4
-    Continue
+Func fib(n)
+  If n <= 1
+    Return n
   End
-  If k == 6
-    Continue
-  End
-  Print k
+  Return fib(n - 1) + fib(n - 2)
 End
 
-# Nested loops with Break #
-Print "Nested Break test:"
-For outer = 1 To 3
-  For inner = 1 To 3
-    If inner == 2
-      Break
-    End
-    Print inner
-  End
+Print "add(7, 8) = " + ToString(add(7, 8))
+Print "greet(\"James\") = " + greet("James")
+Print "max(42, 17) = " + ToString(max(42, 17))
+
+Print "Fibonacci sequence (first 8):"
+For i = 0 To 7
+  Print "  fib(" + ToString(i) + ") = " + ToString(fib(i))
+End
+Print ""
+
+# ---------------------- #
+# 13. FILE I/O           #
+# ---------------------- #
+Print "--- 13. File I/O ---"
+
+WriteFile("test_output.txt", "Line 1: Written by LANGUAGE\n")
+AppendFile("test_output.txt", "Line 2: Appended by LANGUAGE\n")
+AppendFile("test_output.txt", "Line 3: All done!\n")
+
+fileContents = ReadFile("test_output.txt")
+Print "File contents:"
+Print fileContents
+Print ""
+
+# ---------------------- #
+# 14. TRY / CATCH        #
+# ---------------------- #
+Print "--- 14. Try / Catch ---"
+
+Try
+  result = 10 / 0
+Catch(err)
+  Print "Caught error: " + err
 End
 
-# FizzBuzz with Continue #
-Print "FizzBuzz with Continue:"
-For n = 1 To 15
-  If n == 3
-    Print "Fizz"
-    Continue
-  End
-  If n == 5
-    Print "Buzz"
-    Continue
-  End
-  If n == 15
-    Print "FizzBuzz"
-    Continue
-  End
-  Print n
+Try
+  badFile = ReadFile("this_file_does_not_exist.txt")
+Catch(err)
+  Print "Caught file error: " + err
 End
+Print ""
+
+# ---------------------- #
+# 15. BOOLEANS           #
+# ---------------------- #
+Print "--- 15. Boolean Logic ---"
+
+t = True
+f = False
+Print "True And False = " + ToString(t And f)
+Print "True Or False = " + ToString(t Or f)
+Print "Not True = " + ToString(Not t)
+Print "Not False = " + ToString(Not f)
+Print ""
+
+# ---------------------- #
+# 16. IMPORT             #
+# ---------------------- #
+Print "--- 16. Import ---"
+
+Import "stringlib.LANGUAGE"
+
+Print "isPalindrome(\"racecar\") = " + ToString(isPalindrome("racecar"))
+Print "isPalindrome(\"hello\") = " + ToString(isPalindrome("hello"))
+Print "repeat(\"ha\", 4) = " + repeat("ha", 4)
+Print "startsWith(\"LANGUAGE\", \"LANG\") = " + ToString(startsWith("LANGUAGE", "LANG"))
+Print "endsWith(\"LANGUAGE\", \"LANG\") = " + ToString(endsWith("LANGUAGE", "LANG"))
+Print "endsWith(\"LANGUAGE\", \"GUAGE\") = " + ToString(endsWith("LANGUAGE", "GUAGE"))
+Print "countOccurrences(\"banana\", \"a\") = " + ToString(countOccurrences("banana", "a"))
+Print ""
+
+Print "============================="
+Print "  All features complete!"
+Print "============================="

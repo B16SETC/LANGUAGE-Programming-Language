@@ -57,6 +57,12 @@ std::unique_ptr<ASTNode> Parser::factor() {
         advance();
         return std::make_unique<NotOpNode>(logical());
     }
+    if (token.type == TokenType::MINUS) {
+        advance();
+        // Unary minus: wrap as 0 - factor
+        return std::make_unique<BinaryOpNode>(TokenType::MINUS,
+            std::make_unique<NumberNode>(0.0), factor());
+    }
     if (token.type == TokenType::INPUT) {
         advance();
         if (current_token.type != TokenType::LPAREN)
@@ -404,6 +410,15 @@ std::unique_ptr<ASTNode> Parser::statement() {
     if (current_token.type == TokenType::CONTINUE) {
         advance();
         return std::make_unique<ContinueNode>();
+    }
+
+    if (current_token.type == TokenType::IMPORT) {
+        advance();
+        if (current_token.type != TokenType::STRING)
+            throw std::runtime_error("Expected string path after Import");
+        std::string filepath = current_token.value;
+        advance();
+        return std::make_unique<ImportNode>(filepath);
     }
 
     if (current_token.type == TokenType::IDENTIFIER) {

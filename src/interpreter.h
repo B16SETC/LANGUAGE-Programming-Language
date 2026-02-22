@@ -1,10 +1,12 @@
 #pragma once
 #include "parser.h"
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 #include <memory>
 #include <stdexcept>
+#include <filesystem>
 
 struct Value {
     enum class Type { NUMBER, STRING, BOOLEAN, ARRAY } type;
@@ -60,10 +62,15 @@ struct ContinueException {};
 class Interpreter {
 public:
     void execute(const std::vector<std::unique_ptr<ASTNode>>& statements);
+    void import_file(const std::string& filepath);
+    void set_current_dir(const std::string& dir) { current_dir = dir; }
 
 private:
+    std::string current_dir; // Directory of the currently executing script
     std::map<std::string, Value> variables;
     std::map<std::string, FuncDefNode*> functions;
+    std::set<std::string> imported_files; // Track imports to prevent circular imports
+    std::vector<std::vector<std::unique_ptr<ASTNode>>> imported_asts; // Keep imported ASTs alive
 
     Value evaluate(ASTNode* node);
     bool evaluate_condition(ASTNode* node);

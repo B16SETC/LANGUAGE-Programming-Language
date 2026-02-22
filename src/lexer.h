@@ -31,6 +31,7 @@ enum class TokenType {
     TO,
     BREAK,
     CONTINUE,
+    IMPORT,
     FUNC,
     RETURN,
     END,

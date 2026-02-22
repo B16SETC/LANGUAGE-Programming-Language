@@ -26,6 +26,7 @@ enum class NodeType {
     FOR_LOOP,
     BREAK_STATEMENT,
     CONTINUE_STATEMENT,
+    IMPORT_STATEMENT,
     FUNC_DEF,
     FUNC_CALL,
     RETURN_STATEMENT,
@@ -161,6 +162,11 @@ struct BreakNode : ASTNode {
 
 struct ContinueNode : ASTNode {
     ContinueNode() { type = NodeType::CONTINUE_STATEMENT; }
+};
+
+struct ImportNode : ASTNode {
+    std::string filepath;
+    ImportNode(const std::string& path) : filepath(path) { type = NodeType::IMPORT_STATEMENT; }
 };
 
 struct FuncDefNode : ASTNode {

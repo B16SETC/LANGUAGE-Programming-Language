@@ -1,11 +1,12 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <filesystem>
 #include "lexer.h"
 #include "parser.h"
 #include "interpreter.h"
 
-const std::string VERSION = "1.1.0";
+const std::string VERSION = "1.2.0";
 
 void print_usage() {
     std::cout << "LANGUAGE Programming Language v" << VERSION << "\n";
@@ -69,6 +70,9 @@ int main(int argc, char* argv[]) {
         auto ast = parser.parse();
         
         Interpreter interpreter;
+        // Set the script's directory so relative imports work
+        std::string script_dir = std::filesystem::weakly_canonical(arg).parent_path().string();
+        interpreter.set_current_dir(script_dir);
         interpreter.execute(ast);
         
     } catch (const std::exception& e) {

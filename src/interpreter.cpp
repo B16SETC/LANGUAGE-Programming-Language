@@ -1,4 +1,6 @@
 #include "interpreter.h"
+#include "lexer.h"
+#include "parser.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -389,6 +391,12 @@ void Interpreter::execute_statement(ASTNode* node) {
             throw ContinueException();
         }
 
+        case NodeType::IMPORT_STATEMENT: {
+            auto* imp = static_cast<ImportNode*>(node);
+            import_file(imp->filepath);
+            break;
+        }
+
         case NodeType::TRY_CATCH: {
             auto* tc = static_cast<TryCatchNode*>(node);
             try {
@@ -412,4 +420,63 @@ void Interpreter::execute_statement(ASTNode* node) {
 void Interpreter::execute(const std::vector<std::unique_ptr<ASTNode>>& statements) {
     for (const auto& stmt : statements)
         execute_statement(stmt.get());
+}
+
+void Interpreter::import_file(const std::string& filepath) {
+    // Resolve path: if not absolute, treat as relative to current_dir
+    std::filesystem::path p(filepath);
+    std::string resolved;
+    if (p.is_absolute()) {
+        resolved = filepath;
+    } else {
+        std::filesystem::path base = current_dir.empty() ? std::filesystem::current_path() : std::filesystem::path(current_dir);
+        resolved = std::filesystem::weakly_canonical(base / p).string();
+    }
+
+    // Check for circular imports
+    if (imported_files.find(resolved) != imported_files.end()) {
+        return; // Already imported, skip
+    }
+
+    // Mark as imported
+    imported_files.insert(resolved);
+
+    // Read the file
+    std::ifstream file(resolved);
+    if (!file.is_open()) {
+        throw std::runtime_error("Cannot open file for import: " + resolved);
+    }
+
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    std::string source = buffer.str();
+
+    // Normalize line endings
+    std::string normalized;
+    for (size_t i = 0; i < source.length(); i++) {
+        if (source[i] == '\r' && i + 1 < source.length() && source[i + 1] == '\n') {
+            continue;
+        }
+        normalized += source[i];
+    }
+
+    // Lex, parse, and execute the imported file
+    Lexer lexer(normalized);
+    auto tokens = lexer.tokenize();
+
+    Parser parser(tokens);
+    auto ast = parser.parse();
+
+    // Keep the AST alive (functions store raw pointers into it)
+    imported_asts.push_back(std::move(ast));
+
+    // Switch current_dir to the imported file's directory so nested imports resolve correctly
+    std::string saved_dir = current_dir;
+    current_dir = std::filesystem::path(resolved).parent_path().string();
+
+    for (const auto& stmt : imported_asts.back())
+        execute_statement(stmt.get());
+
+    // Restore previous directory
+    current_dir = saved_dir;
 }

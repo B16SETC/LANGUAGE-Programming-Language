@@ -26,14 +26,6 @@ Token Lexer::number() {
     std::string num;
     int start_line = line;
     
-    // Handle negative numbers
-    bool is_negative = false;
-    if (current_char == '-') {
-        is_negative = true;
-        num += current_char;
-        advance();
-    }
-    
     while (current_char != '\0' && (std::isdigit(current_char) || current_char == '.')) {
         num += current_char;
         advance();
@@ -82,6 +74,7 @@ Token Lexer::identifier() {
     if (id == "To")     return {TokenType::TO,     id, start_line, current_indent};
     if (id == "Break")  return {TokenType::BREAK,  id, start_line, current_indent};
     if (id == "Continue") return {TokenType::CONTINUE, id, start_line, current_indent};
+    if (id == "Import") return {TokenType::IMPORT, id, start_line, current_indent};
     if (id == "Func")   return {TokenType::FUNC,   id, start_line, current_indent};
     if (id == "Return") return {TokenType::RETURN, id, start_line, current_indent};
     if (id == "End")    return {TokenType::END,    id, start_line, current_indent};
@@ -149,12 +142,6 @@ std::vector<Token> Lexer::tokenize() {
         }
 
         if (std::isspace(current_char)) { skip_whitespace_inline(); continue; }
-        
-        // Check if minus is a negative number (not an operator)
-        if (current_char == '-' && std::isdigit(source[pos + 1 < source.length() ? pos + 1 : pos])) {
-            tokens.push_back(number());
-            continue;
-        }
         
         if (std::isdigit(current_char)) { tokens.push_back(number()); continue; }
         if (current_char == '"')        { tokens.push_back(string_literal()); continue; }
