@@ -1,11 +1,12 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <filesystem>
 #include "lexer.h"
 #include "parser.h"
 #include "interpreter.h"
 
-const std::string VERSION = "1.0.0";
+const std::string VERSION = "1.3.0";
 
 void print_usage() {
     std::cout << "LANGUAGE Programming Language v" << VERSION << "\n";
@@ -42,8 +43,19 @@ std::string read_file(const std::string& filename) {
 }
 
 int main(int argc, char* argv[]) {
+#ifdef _WIN32
+    WSADATA wsaData;
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+        std::cerr << "Error: Failed to initialize Winsock" << std::endl;
+        return 1;
+    }
+#endif
+
     if (argc < 2) {
         print_usage();
+#ifdef _WIN32
+        WSACleanup();
+#endif
         return 1;
     }
     
@@ -69,12 +81,21 @@ int main(int argc, char* argv[]) {
         auto ast = parser.parse();
         
         Interpreter interpreter;
+        // Set the script's directory so relative imports work
+        std::string script_dir = std::filesystem::weakly_canonical(arg).parent_path().string();
+        interpreter.set_current_dir(script_dir);
         interpreter.execute(ast);
         
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
+#ifdef _WIN32
+        WSACleanup();
+#endif
         return 1;
     }
-    
+
+#ifdef _WIN32
+    WSACleanup();
+#endif
     return 0;
 }

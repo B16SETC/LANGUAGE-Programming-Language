@@ -57,6 +57,12 @@ std::unique_ptr<ASTNode> Parser::factor() {
         advance();
         return std::make_unique<NotOpNode>(logical());
     }
+    if (token.type == TokenType::MINUS) {
+        advance();
+        // Unary minus: wrap as 0 - factor
+        return std::make_unique<BinaryOpNode>(TokenType::MINUS,
+            std::make_unique<NumberNode>(0.0), factor());
+    }
     if (token.type == TokenType::INPUT) {
         advance();
         if (current_token.type != TokenType::LPAREN)
@@ -138,9 +144,41 @@ std::unique_ptr<ASTNode> Parser::factor() {
                 return std::make_unique<StringOpNode>("Substring", std::move(target), std::move(rest));
             }
 
-            // Math built-ins
-            if (token.value == "Floor" || token.value == "Ceil" || token.value == "Sqrt" ||
-                token.value == "Abs"   || token.value == "Power") {
+            // Math built-ins (single argument or with extra args)
+            if (token.value == "Floor" || token.value == "Ceil" || token.value == "Round" ||
+                token.value == "Sqrt"  || token.value == "Abs"  || token.value == "Power" ||
+                token.value == "Sin"   || token.value == "Cos"  || token.value == "Tan" ||
+                token.value == "Asin"  || token.value == "Acos" || token.value == "Atan" ||
+                token.value == "Atan2" || token.value == "Mod"  || token.value == "Min" ||
+                token.value == "Max"   || token.value == "Clamp" || token.value == "Lerp" ||
+                token.value == "Log"   || token.value == "Log10" || token.value == "Log2" ||
+                token.value == "Exp"   || token.value == "Sinh"  || token.value == "Cosh" ||
+                token.value == "Tanh"  || token.value == "Asinh" || token.value == "Acosh" ||
+                token.value == "Atanh" || token.value == "Deg2Rad" || token.value == "Rad2Deg" ||
+                token.value == "Factorial" || token.value == "IsPrime" || token.value == "GCD" ||
+                token.value == "LCM"   || token.value == "RandomInt" ||
+                // Possibly useful
+                token.value == "Sign"    || token.value == "Truncate"  || token.value == "Frac" ||
+                token.value == "Hypot"   || token.value == "Cbrt"      || token.value == "CopySign" ||
+                token.value == "LogBase" ||
+                // Number checks
+                token.value == "IsNaN"   || token.value == "IsInf" ||
+                token.value == "IsEven"  || token.value == "IsOdd" ||
+                // Bitwise
+                token.value == "BitAnd"  || token.value == "BitOr"         || token.value == "BitXor" ||
+                token.value == "BitNot"  || token.value == "BitShiftLeft"  || token.value == "BitShiftRight" ||
+                // Statistics
+                token.value == "Sum"     || token.value == "Product"  || token.value == "Mean" ||
+                token.value == "Median"  || token.value == "Variance" || token.value == "StdDev" ||
+                // Pure math
+                token.value == "Gamma"   || token.value == "Beta" ||
+                token.value == "Erf"     || token.value == "Erfc" ||
+                // TCP Sockets
+                token.value == "SocketConnect"     || token.value == "SocketListen" ||
+                token.value == "SocketAccept"      || token.value == "SocketSend" ||
+                token.value == "SocketReceive"     || token.value == "SocketReceiveLine" ||
+                token.value == "SocketClose"       || token.value == "SocketIsValid" ||
+                token.value == "SocketSetTimeout") {
                 auto target = std::move(args[0]);
                 std::vector<std::unique_ptr<ASTNode>> rest;
                 for (size_t i = 1; i < args.size(); i++) rest.push_back(std::move(args[i]));
@@ -394,6 +432,25 @@ std::unique_ptr<ASTNode> Parser::statement() {
     if (current_token.type == TokenType::RETURN) {
         advance();
         return std::make_unique<ReturnNode>(logical());
+    }
+
+    if (current_token.type == TokenType::BREAK) {
+        advance();
+        return std::make_unique<BreakNode>();
+    }
+
+    if (current_token.type == TokenType::CONTINUE) {
+        advance();
+        return std::make_unique<ContinueNode>();
+    }
+
+    if (current_token.type == TokenType::IMPORT) {
+        advance();
+        if (current_token.type != TokenType::STRING)
+            throw std::runtime_error("Expected string path after Import");
+        std::string filepath = current_token.value;
+        advance();
+        return std::make_unique<ImportNode>(filepath);
     }
 
     if (current_token.type == TokenType::IDENTIFIER) {

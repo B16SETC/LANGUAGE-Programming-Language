@@ -1,10 +1,31 @@
 #pragma once
 #include "parser.h"
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 #include <memory>
 #include <stdexcept>
+#include <filesystem>
+
+// Platform socket includes
+#ifdef _WIN32
+  #include <winsock2.h>
+  #include <ws2tcpip.h>
+  #pragma comment(lib, "ws2_32.lib")
+  #define LANG_CLOSE_SOCKET(s) closesocket(s)
+  typedef SOCKET lang_socket_t;
+  #define LANG_INVALID_SOCKET INVALID_SOCKET
+#else
+  #include <sys/socket.h>
+  #include <netinet/in.h>
+  #include <arpa/inet.h>
+  #include <netdb.h>
+  #include <unistd.h>
+  #define LANG_CLOSE_SOCKET(s) close(s)
+  typedef int lang_socket_t;
+  #define LANG_INVALID_SOCKET (-1)
+#endif
 
 struct Value {
     enum class Type { NUMBER, STRING, BOOLEAN, ARRAY } type;
@@ -54,13 +75,25 @@ struct ReturnException {
     ReturnException(Value v) : value(v) {}
 };
 
+struct BreakException {};
+struct ContinueException {};
+
 class Interpreter {
 public:
     void execute(const std::vector<std::unique_ptr<ASTNode>>& statements);
+    void import_file(const std::string& filepath);
+    void set_current_dir(const std::string& dir) { current_dir = dir; }
 
 private:
+    std::string current_dir; // Directory of the currently executing script
     std::map<std::string, Value> variables;
     std::map<std::string, FuncDefNode*> functions;
+    std::set<std::string> imported_files; // Track imports to prevent circular imports
+    std::vector<std::vector<std::unique_ptr<ASTNode>>> imported_asts; // Keep imported ASTs alive
+
+    // TCP socket state
+    std::map<int, lang_socket_t> tcp_sockets;   // handle -> fd
+    int next_socket_handle = 1;
 
     Value evaluate(ASTNode* node);
     bool evaluate_condition(ASTNode* node);

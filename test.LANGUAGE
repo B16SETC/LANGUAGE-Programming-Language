@@ -1,69 +1,399 @@
-# Day 5 tests - For loop #
-For i = 1 To 5
-  Print i
-End
+# ================================ #
+# LANGUAGE v1.3.0 - Feature Showcase #
+# ================================ #
 
-# Array tests #
-nums = [10, 50, 30, 20, 99]
-nums[2] = 99
-Print nums[0]
-Print nums[4]
-Print nums[2]
-Print Length(nums)
+Print "============================="
+Print "  LANGUAGE Feature Showcase"
+Print "============================="
+Print ""
 
-# Push and Pop #
-arr = [1, 2, 3]
-Push(arr, 4)
-Print Length(arr)
-Pop(arr)
-Print Length(arr)
+# -------------------- #
+# 1. VARIABLES & TYPES #
+# -------------------- #
+Print "--- 1. Variables & Types ---"
 
-# Elif test #
-x = 50
-If x < 10
-  Print "small"
-Elif x < 100
-  Print "medium"
+numVar = 42
+floatVar = 3.14
+strVar = "Hello, World!"
+boolTrue = True
+boolFalse = False
+
+Print "Integer: " + ToString(numVar)
+Print "Float: " + ToString(floatVar)
+Print "String: " + strVar
+Print "Boolean True: " + ToString(boolTrue)
+Print "Boolean False: " + ToString(boolFalse)
+Print ""
+
+# ---------------------- #
+# 2. ARITHMETIC          #
+# ---------------------- #
+Print "--- 2. Arithmetic ---"
+
+a = 10
+b = 3
+Print "a + b = " + ToString(a + b)
+Print "a - b = " + ToString(a - b)
+Print "a * b = " + ToString(a * b)
+Print "a / b = " + ToString(a / b)
+Print ""
+
+# ---------------------- #
+# 3. STRING OPERATIONS   #
+# ---------------------- #
+Print "--- 3. String Operations ---"
+
+s = "Hello, LANGUAGE!"
+Print "Upper: " + Upper(s)
+Print "Lower: " + Lower(s)
+Print "Length: " + ToString(Length(s))
+Print "Substring(7,8): " + Substring(s, 7, 8)
+Print "Contains LANGUAGE: " + ToString(Contains(s, "LANGUAGE"))
+Print "Contains Python: " + ToString(Contains(s, "Python"))
+Print ""
+
+# ---------------------- #
+# 4. BASIC MATH          #
+# ---------------------- #
+Print "--- 4. Basic Math ---"
+
+Print "Floor(3.7) = " + ToString(Floor(3.7))
+Print "Ceil(3.2) = " + ToString(Ceil(3.2))
+Print "Round(3.5) = " + ToString(Round(3.5))
+Print "Round(3.4) = " + ToString(Round(3.4))
+Print "Abs(-99) = " + ToString(Abs(-99))
+Print "Sqrt(144) = " + ToString(Sqrt(144))
+Print "Power(2, 10) = " + ToString(Power(2, 10))
+Print "Mod(17, 5) = " + ToString(Mod(17, 5))
+Print "Min(3, 7) = " + ToString(Min(3, 7))
+Print "Max(3, 7) = " + ToString(Max(3, 7))
+Print "Clamp(15, 0, 10) = " + ToString(Clamp(15, 0, 10))
+Print "Lerp(0, 100, 0.3) = " + ToString(Lerp(0, 100, 0.3))
+Print ""
+
+# ---------------------- #
+# 5. TRIGONOMETRY        #
+# ---------------------- #
+Print "--- 5. Trigonometry ---"
+
+Print "Sin(0) = " + ToString(Sin(0))
+Print "Cos(0) = " + ToString(Cos(0))
+Print "Tan(0) = " + ToString(Tan(0))
+Print "Asin(1) = " + ToString(Asin(1))
+Print "Acos(1) = " + ToString(Acos(1))
+Print "Atan(1) = " + ToString(Atan(1))
+Print "Atan2(1, 1) = " + ToString(Atan2(1, 1))
+Print "Deg2Rad(180) = " + ToString(Deg2Rad(180))
+Print "Rad2Deg(3) = " + ToString(Rad2Deg(3))
+Print ""
+
+# ---------------------- #
+# 6. HYPERBOLIC          #
+# ---------------------- #
+Print "--- 6. Hyperbolic ---"
+
+Print "Sinh(1) = " + ToString(Sinh(1))
+Print "Cosh(1) = " + ToString(Cosh(1))
+Print "Tanh(1) = " + ToString(Tanh(1))
+Print "Asinh(1) = " + ToString(Asinh(1))
+Print "Acosh(1) = " + ToString(Acosh(1))
+Print "Atanh(0.5) = " + ToString(Atanh(0.5))
+Print ""
+
+# ---------------------- #
+# 7. LOGS & EXP          #
+# ---------------------- #
+Print "--- 7. Logarithms & Exponentials ---"
+
+Print "Log(2) = " + ToString(Log(2))
+Print "Log10(1000) = " + ToString(Log10(1000))
+Print "Log2(8) = " + ToString(Log2(8))
+Print "Exp(1) = " + ToString(Exp(1))
+Print ""
+
+# ---------------------- #
+# 8. NUMBER THEORY       #
+# ---------------------- #
+Print "--- 8. Number Theory ---"
+
+Print "Factorial(6) = " + ToString(Factorial(6))
+Print "IsPrime(17) = " + ToString(IsPrime(17))
+Print "IsPrime(18) = " + ToString(IsPrime(18))
+Print "GCD(12, 8) = " + ToString(GCD(12, 8))
+Print "LCM(4, 6) = " + ToString(LCM(4, 6))
+Print "RandomInt(1, 100) = " + ToString(RandomInt(1, 100))
+Print ""
+
+# ---------------------- #
+# 9. EXTRA MATH          #
+# ---------------------- #
+Print "--- 9. Extra Math ---"
+
+Print "Sign(-5) = " + ToString(Sign(-5))
+Print "Sign(0) = " + ToString(Sign(0))
+Print "Sign(7) = " + ToString(Sign(7))
+Print "Truncate(3.9) = " + ToString(Truncate(3.9))
+Print "Truncate(-3.9) = " + ToString(Truncate(-3.9))
+Print "Frac(3.75) = " + ToString(Frac(3.75))
+Print "Hypot(3, 4) = " + ToString(Hypot(3, 4))
+Print "Cbrt(27) = " + ToString(Cbrt(27))
+Print "Cbrt(-8) = " + ToString(Cbrt(-8))
+Print "CopySign(5, -1) = " + ToString(CopySign(5, -1))
+Print "LogBase(8, 2) = " + ToString(LogBase(8, 2))
+Print ""
+
+# ---------------------- #
+# 10. NUMBER CHECKS      #
+# ---------------------- #
+Print "--- 10. Number Checks ---"
+
+Print "IsNaN(0) = " + ToString(IsNaN(0))
+Print "IsInf(1) = " + ToString(IsInf(1))
+Print "IsEven(4) = " + ToString(IsEven(4))
+Print "IsEven(5) = " + ToString(IsEven(5))
+Print "IsOdd(7) = " + ToString(IsOdd(7))
+Print "IsOdd(8) = " + ToString(IsOdd(8))
+Print ""
+
+# ---------------------- #
+# 11. BITWISE            #
+# ---------------------- #
+Print "--- 11. Bitwise ---"
+
+Print "BitAnd(12, 10) = " + ToString(BitAnd(12, 10))
+Print "BitOr(12, 10) = " + ToString(BitOr(12, 10))
+Print "BitXor(12, 10) = " + ToString(BitXor(12, 10))
+Print "BitNot(0) = " + ToString(BitNot(0))
+Print "BitShiftLeft(1, 4) = " + ToString(BitShiftLeft(1, 4))
+Print "BitShiftRight(16, 2) = " + ToString(BitShiftRight(16, 2))
+Print ""
+
+# ---------------------- #
+# 12. STATISTICS         #
+# ---------------------- #
+Print "--- 12. Statistics ---"
+
+nums = [4, 8, 15, 16, 23, 42]
+Print "Array: [4, 8, 15, 16, 23, 42]"
+Print "Sum = " + ToString(Sum(nums))
+Print "Product = " + ToString(Product(nums))
+Print "Mean = " + ToString(Mean(nums))
+Print "Median = " + ToString(Median(nums))
+Print "Variance = " + ToString(Variance(nums))
+Print "StdDev = " + ToString(StdDev(nums))
+Print ""
+
+# ---------------------- #
+# 13. PURE MATH          #
+# ---------------------- #
+Print "--- 13. Pure Math ---"
+
+Print "Gamma(5) = " + ToString(Gamma(5))
+Print "Beta(2, 3) = " + ToString(Beta(2, 3))
+Print "Erf(1) = " + ToString(Erf(1))
+Print "Erfc(1) = " + ToString(Erfc(1))
+Print ""
+
+# ---------------------- #
+# 14. TYPE CONVERSION    #
+# ---------------------- #
+Print "--- 14. Type Conversion ---"
+
+Print "ToNumber(\"123\") + 1 = " + ToString(ToNumber("123") + 1)
+Print "ToString(9.5) = " + ToString(9.5)
+Print ""
+
+# ---------------------- #
+# 15. IF / ELIF / ELSE   #
+# ---------------------- #
+Print "--- 15. If / Elif / Else ---"
+
+score = 75
+If score >= 90
+  Print "Grade: A"
+Elif score >= 80
+  Print "Grade: B"
+Elif score >= 70
+  Print "Grade: C"
 Else
-  Print "large"
+  Print "Grade: F"
+End
+Print ""
+
+# ---------------------- #
+# 16. LOGICAL OPERATORS  #
+# ---------------------- #
+Print "--- 16. Logical Operators ---"
+
+x = 5
+If x > 0 And x < 10
+  Print "Single digit positive"
+End
+If x < 0 Or x > 3
+  Print "Negative or greater than 3"
+End
+If Not x == 99
+  Print "x is not 99"
+End
+Print ""
+
+# ---------------------- #
+# 17. WHILE LOOP         #
+# ---------------------- #
+Print "--- 17. While Loop ---"
+
+count = 1
+While count <= 5
+  Print "Count: " + ToString(count)
+  count = count + 1
+End
+Print ""
+
+# ---------------------- #
+# 18. FOR LOOP           #
+# ---------------------- #
+Print "--- 18. For Loop ---"
+
+For i = 1 To 5
+  Print ToString(i) + "^2 = " + ToString(i * i)
+End
+Print ""
+
+# ---------------------- #
+# 19. BREAK & CONTINUE   #
+# ---------------------- #
+Print "--- 19. Break & Continue ---"
+
+Print "Odd only:"
+For i = 1 To 8
+  If Mod(i, 2) == 0
+    Continue
+  End
+  Print "  " + ToString(i)
 End
 
-# Booleans #
-a = True
-b = False
-Print a
-Print b
-
-# Logical operators #
-If True And Not False
-  Print "logic works"
+Print "Break at 4:"
+For i = 1 To 10
+  If i > 4
+    Break
+  End
+  Print "  " + ToString(i)
 End
-If True Or False
-  Print "or works"
+Print ""
+
+# ---------------------- #
+# 20. ARRAYS             #
+# ---------------------- #
+Print "--- 20. Arrays ---"
+
+fruits = ["Apple", "Banana", "Cherry"]
+Print "fruits = " + ToString(fruits)
+fruits[1] = "Blueberry"
+Print "After modify: " + ToString(fruits)
+Push(fruits, "Dragonfruit")
+Print "After Push: " + ToString(fruits)
+Pop(fruits)
+Print "After Pop: " + ToString(fruits)
+Print "Length: " + ToString(Length(fruits))
+Print ""
+
+# ---------------------- #
+# 21. FUNCTIONS          #
+# ---------------------- #
+Print "--- 21. Functions ---"
+
+Func add(a, b)
+  Return a + b
 End
 
-# Day 6 tests - Type conversion #
-n = ToNumber("42")
-Print n
-s = ToString(100)
-Print s
-
-# Math built-ins #
-Print Floor(4.9)
-Print Ceil(4.1)
-Print Sqrt(16)
-Print Abs(-7)
-Print Power(2, 8)
-
-# Try / Catch #
-Try
-  x = ToNumber("not a number")
-Catch(err)
-  Print "caught error"
+Func greet(name)
+  Return "Hello, " + name + "!"
 End
 
-# File I/O #
-WriteFile("test_output.txt", "Hello from LANGUAGE 1.0.0!")
+Func fib(n)
+  If n <= 1
+    Return n
+  End
+  Return fib(n - 1) + fib(n - 2)
+End
+
+Print "add(7, 8) = " + ToString(add(7, 8))
+Print "greet(\"James\") = " + greet("James")
+Print "Fibonacci:"
+For i = 0 To 7
+  Print "  fib(" + ToString(i) + ") = " + ToString(fib(i))
+End
+Print ""
+
+# ---------------------- #
+# 22. FILE I/O           #
+# ---------------------- #
+Print "--- 22. File I/O ---"
+
+WriteFile("test_output.txt", "Line 1\n")
+AppendFile("test_output.txt", "Line 2\n")
+AppendFile("test_output.txt", "Line 3\n")
 contents = ReadFile("test_output.txt")
+Print "File contents:"
 Print contents
-AppendFile("test_output.txt", " Appended!")
+Print ""
+
+# ---------------------- #
+# 23. TRY / CATCH        #
+# ---------------------- #
+Print "--- 23. Try / Catch ---"
+
+Try
+  result = 10 / 0
+Catch(err)
+  Print "Caught: " + err
+End
+
+Try
+  bad = ReadFile("does_not_exist.txt")
+Catch(err)
+  Print "Caught file error: " + err
+End
+Print ""
+
+# ---------------------- #
+# 24. BOOLEAN LOGIC      #
+# ---------------------- #
+Print "--- 24. Boolean Logic ---"
+
+Print "True And False = " + ToString(True And False)
+Print "True Or False = " + ToString(True Or False)
+Print "Not True = " + ToString(Not True)
+Print ""
+
+# ---------------------- #
+# 25. TCP SOCKETS        #
+# ---------------------- #
+Print "--- 25. TCP Sockets ---"
+
+Print "Starting server..."
+server = SocketListen("0.0.0.0", 19996)
+Print "Server listening, handle = " + ToString(server)
+Print "Server IsValid: " + ToString(SocketIsValid(server))
+SocketClose(server)
+Print "Server closed, IsValid: " + ToString(SocketIsValid(server))
+Print ""
+
+# ---------------------- #
+# 26. IMPORT             #
+# ---------------------- #
+Print "--- 26. Import ---"
+
+Import "stringlib.LANGUAGE"
+
+Print "isPalindrome(racecar) = " + ToString(isPalindrome("racecar"))
+Print "isPalindrome(hello) = " + ToString(isPalindrome("hello"))
+Print "repeat(ha, 4) = " + repeat("ha", 4)
+Print "startsWith(LANGUAGE, LANG) = " + ToString(startsWith("LANGUAGE", "LANG"))
+Print "endsWith(LANGUAGE, GUAGE) = " + ToString(endsWith("LANGUAGE", "GUAGE"))
+Print "countOccurrences(banana, a) = " + ToString(countOccurrences("banana", "a"))
+Print ""
+
+Print "============================="
+Print "  All 26 features complete!"
+Print "============================="
