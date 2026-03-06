@@ -81,8 +81,9 @@ Token Lexer::identifier() {
     if (id == "And")    return {TokenType::AND,    id, start_line, current_indent};
     if (id == "Or")     return {TokenType::OR,     id, start_line, current_indent};
     if (id == "Not")    return {TokenType::NOT,    id, start_line, current_indent};
-    if (id == "True")   return {TokenType::TRUE,   id, start_line, current_indent};
-    if (id == "False")  return {TokenType::FALSE,  id, start_line, current_indent};
+    if (id == "True")   return {TokenType::TRUE,       id, start_line, current_indent};
+    if (id == "False")  return {TokenType::FALSE,      id, start_line, current_indent};
+    if (id == "Null")   return {TokenType::NULL_TOKEN, id, start_line, current_indent};
     if (id == "Input")  return {TokenType::INPUT,  id, start_line, current_indent};
     if (id == "ReadFile") return {TokenType::READFILE, id, start_line, current_indent};
     if (id == "WriteFile") return {TokenType::WRITEFILE, id, start_line, current_indent};
@@ -145,6 +146,22 @@ std::vector<Token> Lexer::tokenize() {
         
         if (std::isdigit(current_char)) { tokens.push_back(number()); continue; }
         if (current_char == '"')        { tokens.push_back(string_literal()); continue; }
+        // Backtick multiline string
+        if (current_char == '`') {
+            int start_line = line;
+            advance(); // skip opening backtick
+            std::string str;
+            while (current_char != '\0' && current_char != '`') {
+                if (current_char == '\n') line++;
+                str += current_char;
+                advance();
+            }
+            if (current_char != '`')
+                throw std::runtime_error("Unterminated multiline string on line " + std::to_string(start_line));
+            advance(); // skip closing backtick
+            tokens.push_back({TokenType::STRING, str, start_line, current_indent});
+            continue;
+        }
         if (std::isalpha(current_char) || current_char == '_') { tokens.push_back(identifier()); continue; }
 
         int current_line = line;
@@ -183,6 +200,9 @@ std::vector<Token> Lexer::tokenize() {
             case ')': tokens.push_back({TokenType::RPAREN,   ")", current_line, current_indent}); advance(); break;
             case '[': tokens.push_back({TokenType::LBRACKET, "[", current_line, current_indent}); advance(); break;
             case ']': tokens.push_back({TokenType::RBRACKET, "]", current_line, current_indent}); advance(); break;
+            case '{': tokens.push_back({TokenType::LBRACE,   "{", current_line, current_indent}); advance(); break;
+            case '}': tokens.push_back({TokenType::RBRACE,   "}", current_line, current_indent}); advance(); break;
+            case ':': tokens.push_back({TokenType::COLON,    ":", current_line, current_indent}); advance(); break;
             case ',': tokens.push_back({TokenType::COMMA,    ",", current_line, current_indent}); advance(); break;
             default:  throw std::runtime_error("Unknown character: " + std::string(1, current_char));
         }

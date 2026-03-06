@@ -1,606 +1,113 @@
-# LANGUAGE Programming Language
+# LANGUAGE
 
-LANGUAGE is a minimalist, whitespace-sensitive programming language with a clean, readable syntax. It supports variables, arithmetic, strings, arrays, booleans, control flow, functions, loops, user input, type conversion, math built-ins, file I/O, error handling, and imports.
+A programming language built from scratch in C++.
 
----
-
-## Table of Contents
-
-- [Running a Script](#running-a-script)
-- [Comments](#comments)
-- [Variables](#variables)
-- [Data Types](#data-types)
-- [Arithmetic](#arithmetic)
-- [String Operations](#string-operations)
-- [Math Built-ins](#math-built-ins)
-- [Type Conversion](#type-conversion)
-- [Booleans & Logical Operators](#booleans--logical-operators)
-- [If / Elif / Else](#if--elif--else)
-- [While Loops](#while-loops)
-- [For Loops](#for-loops)
-- [Break & Continue](#break--continue)
-- [Arrays](#arrays)
-- [Functions](#functions)
-- [User Input](#user-input)
-- [File I/O](#file-io)
-- [Error Handling](#error-handling)
-- [Importing Files](#importing-files)
+> Started as a joke. Became real.
 
 ---
 
-## Running a Script
+## Features
 
-Save your code in a file with the `.LANGUAGE` extension and run it:
+- Numbers, strings, booleans, arrays, dictionaries, null
+- String interpolation and multiline strings
+- If / Elif / Else, While, For loops
+- Functions with default parameters
+- Recursion, Try / Catch error handling
+- File I/O
+- Full math library (70+ functions)
+- Complete networking stack — DNS, TCP, UDP, HTTP client, HTTP server, WebSockets
+- JSON parsing and stringification
+- LANGPACK system — extend LANGUAGE with native C++ packages
+- Package manager — `--install`, `--uninstall`, `--list`, `--search`
+- Cross-platform — Linux and Windows
 
+---
+
+## Installation
+
+Download the latest binary from [Releases](https://github.com/B16SETC/LANGUAGE-Programming-Language/releases).
+
+**Linux:**
 ```bash
-LANGUAGE myscript.LANGUAGE
+chmod +x LANGUAGE
+./LANGUAGE script.LANGUAGE
 ```
 
-Other options:
-
-```bash
-LANGUAGE --version    # Show version
-LANGUAGE --help       # Show usage info
+**Windows:**
 ```
-
----
-
-## Comments
-
-Comments are wrapped in `#` characters. They can span multiple lines.
-
-```
-# This is a comment #
-
-# This is a
-  multi-line comment #
-
-Print "Hello"  # inline comment #
+LANGUAGE.exe script.LANGUAGE
 ```
 
 ---
 
-## Variables
+## Quick Start
 
-Variables are assigned with `=`. There is no type declaration — the type is inferred from the value.
-
-```
-name = "Alice"
-age = 30
-pi = 3.14159
-isActive = True
-```
-
-Variable names are case-sensitive and can contain letters, numbers, and underscores, but must start with a letter or underscore.
-
----
-
-## Data Types
-
-LANGUAGE has four data types:
-
-| Type    | Example              |
-|---------|----------------------|
-| Number  | `42`, `3.14`, `-7`   |
-| String  | `"Hello, World!"`    |
-| Boolean | `True`, `False`      |
-| Array   | `[1, 2, 3]`          |
-
----
-
-## Arithmetic
-
-The standard arithmetic operators are supported:
-
-```
-a = 10
-b = 3
-
-Print a + b   # 13
-Print a - b   # 7
-Print a * b   # 30
-Print a / b   # 3.333333
-```
-
-Strings can be concatenated with `+`:
-
-```
-Print "Hello" + ", " + "World!"   # Hello, World!
-```
-
-You can also mix numbers and strings — the number is automatically converted:
-
-```
-x = 5
-Print "The value is: " + x   # The value is: 5
-```
-
----
-
-## String Operations
-
-These built-in functions operate on strings:
-
-```
-s = "Hello, LANGUAGE!"
-
-Print Length(s)              # 16
-Print Upper(s)               # HELLO, LANGUAGE!
-Print Lower(s)               # hello, language!
-Print Substring(s, 7, 8)     # LANGUAGE   (start index, length)
-Print Contains(s, "LANG")    # 1 (true)
-Print Contains(s, "Python")  # 0 (false)
-```
-
-### Substring
-
-`Substring(string, startIndex, length)` — extracts `length` characters starting at `startIndex` (zero-based).
-
-```
-Print Substring("abcdef", 2, 3)   # cde
-```
-
-### Contains
-
-`Contains(string, search)` — returns `1` if the search string is found, `0` if not.
-
----
-
-## Math Built-ins
-
-```
-Print Floor(3.7)       # 3
-Print Ceil(3.2)        # 4
-Print Sqrt(144)        # 12
-Print Abs(-99)         # 99
-Print Power(2, 10)     # 1024
-```
-
-| Function      | Description                  |
-|---------------|------------------------------|
-| `Floor(x)`    | Round down to nearest integer |
-| `Ceil(x)`     | Round up to nearest integer  |
-| `Sqrt(x)`     | Square root                  |
-| `Abs(x)`      | Absolute value               |
-| `Power(x, n)` | x raised to the power of n   |
-
----
-
-## Type Conversion
-
-```
-numStr = "42"
-num = ToNumber(numStr)
-Print num + 8           # 50
-
-n = 3.14
-Print ToString(n)       # 3.14
-```
-
-| Function       | Description                        |
-|----------------|------------------------------------|
-| `ToNumber(x)`  | Convert string or boolean to number |
-| `ToString(x)`  | Convert any value to a string      |
-
----
-
-## Booleans & Logical Operators
-
-```
-t = True
-f = False
-
-Print t And f    # False
-Print t Or f     # True
-Print Not t      # False
-```
-
-Logical operators work in conditions:
-
-```
-x = 5
-
-If x > 0 And x < 10
-  Print "single digit positive"
-End
-
-If x < 0 Or x > 3
-  Print "negative or greater than 3"
-End
-
-If Not x == 0
-  Print "x is not zero"
-End
-```
-
----
-
-## If / Elif / Else
-
-Blocks are defined by indentation (2 spaces) and closed with `End`.
-
-```
-score = 85
-
-If score >= 90
-  Print "Grade: A"
-Elif score >= 80
-  Print "Grade: B"
-Elif score >= 70
-  Print "Grade: C"
-Else
-  Print "Grade: F"
-End
-```
-
-You can have as many `Elif` clauses as you need. `Else` is optional.
-
----
-
-## While Loops
-
-```
-i = 1
-While i <= 5
-  Print i
-  i = i + 1
-End
-```
-
-The loop runs as long as the condition is `True`.
-
----
-
-## For Loops
-
-`For` loops iterate over a range of numbers, inclusive on both ends.
-
-```
-For i = 1 To 5
-  Print i
-End
-```
-
-This prints `1`, `2`, `3`, `4`, `5`.
-
-The loop variable can be used inside the body:
-
-```
-For n = 1 To 10
-  Print n * n
-End
-```
-
----
-
-## Break & Continue
-
-`Break` exits the loop immediately. `Continue` skips to the next iteration.
-
-```
-# Print only odd numbers, stop at 9
-For i = 1 To 20
-  If i > 9
-    Break
-  End
-  If i * Floor(i / 2) == i And Not i == 0
-    Continue
-  End
-  Print i
-End
-```
-
-Both work inside `While` and `For` loops.
-
----
-
-## Arrays
-
-Arrays are ordered lists of values and can hold any mix of types.
-
-### Creating an Array
-
-```
-fruits = ["Apple", "Banana", "Cherry"]
-nums = [10, 20, 30]
-mixed = [1, "hello", True]
-```
-
-### Accessing Elements
-
-Arrays are zero-indexed:
-
-```
-Print fruits[0]   # Apple
-Print fruits[2]   # Cherry
-```
-
-### Modifying Elements
-
-```
-fruits[1] = "Blueberry"
-Print fruits   # [Apple, Blueberry, Cherry]
-```
-
-### Push & Pop
-
-`Push` adds an element to the end. `Pop` removes and discards the last element.
-
-```
-Push(fruits, "Dragonfruit")
-Print fruits   # [Apple, Blueberry, Cherry, Dragonfruit]
-
-Pop(fruits)
-Print fruits   # [Apple, Blueberry, Cherry]
-```
-
-### Array Length
-
-```
-Print Length(fruits)   # 3
-```
-
-### Iterating an Array
-
-```
-names = ["Alice", "Bob", "Charlie"]
-For i = 0 To Length(names) - 1
-  Print names[i]
-End
-```
-
----
-
-## Functions
-
-Functions are defined with `Func` and closed with `End`. They can take parameters and return a value with `Return`.
-
-```
-Func greet(name)
-  Return "Hello, " + name + "!"
-End
-
-Print greet("Alice")   # Hello, Alice!
-```
-
-### Multiple Parameters
-
-```
-Func add(a, b)
-  Return a + b
-End
-
-Print add(3, 7)   # 10
-```
-
-### Recursion
-
-```
-Func factorial(n)
-  If n <= 1
-    Return 1
-  End
-  Return n * factorial(n - 1)
-End
-
-Print factorial(6)   # 720
-```
-
-### Functions Without a Return Value
-
-If a function doesn't hit a `Return` statement, it returns `0` by default.
-
-```
-Func sayHello()
-  Print "Hello!"
-End
-
-sayHello()
-```
-
----
-
-## User Input
-
-`Input` reads a line of text from the user. You can provide a prompt string.
-
-```
-name = Input("What is your name? ")
-Print "Hello, " + name + "!"
-```
-
-```
-ageStr = Input("Enter your age: ")
-age = ToNumber(ageStr)
-Print "Next year you will be " + ToString(age + 1)
-```
-
-Input always returns a string, so use `ToNumber` if you need to do math with it.
-
----
-
-## File I/O
-
-### Reading a File
-
-```
-contents = ReadFile("data.txt")
-Print contents
-```
-
-### Writing a File
-
-`WriteFile` creates or overwrites the file:
-
-```
-WriteFile("output.txt", "Hello from LANGUAGE!\n")
-```
-
-### Appending to a File
-
-`AppendFile` adds to the end of an existing file without overwriting:
-
-```
-AppendFile("output.txt", "Another line\n")
 ```
+# Hello World
+Print "Hello, World!"
 
-### Full Example
-
-```
-WriteFile("log.txt", "Start of log\n")
-AppendFile("log.txt", "Line 2\n")
-AppendFile("log.txt", "Line 3\n")
-
-log = ReadFile("log.txt")
-Print log
-```
-
----
-
-## Error Handling
-
-Use `Try` and `Catch` to handle runtime errors gracefully. The `Catch` block receives the error message as a variable.
-
-```
-Try
-  result = 10 / 0
-Catch(err)
-  Print "Error caught: " + err
-End
-```
-
-```
-Try
-  data = ReadFile("missing.txt")
-Catch(err)
-  Print "Could not read file: " + err
-End
-```
-
-The variable name inside `Catch(...)` can be anything you like. If you omit it, the error is stored in a variable called `error`:
-
-```
-Try
-  x = 1 / 0
-Catch
-  Print "Something went wrong"
-End
-```
-
----
-
-## Importing Files
-
-You can split your code across multiple `.LANGUAGE` files and import them. Imported files can define functions and variables that become available in the importing file.
-
-### Same Directory
-
-```
-Import "mathlib.LANGUAGE"
-```
-
-### Subdirectory
-
-```
-Import "libs/stringlib.LANGUAGE"
-```
-
-### Absolute Path
-
-```
-Import "/home/james/mylibs/utils.LANGUAGE"
-```
-
-Paths are resolved relative to the **directory of the file doing the importing**, not the working directory of the terminal. So if your script is at `/projects/myapp/main.LANGUAGE` and it does `Import "utils.LANGUAGE"`, LANGUAGE looks for `/projects/myapp/utils.LANGUAGE`.
-
-### Duplicate Imports
-
-Importing the same file more than once is safe — LANGUAGE tracks what's been imported and silently skips duplicates:
-
-```
-Import "mathlib.LANGUAGE"
-Import "mathlib.LANGUAGE"   # Ignored, already loaded
-```
-
-### Example Library File (`stringlib.LANGUAGE`)
-
-```
-Func repeat(s, n)
-  result = ""
-  For i = 1 To n
-    result = result + s
-  End
-  Return result
-End
-
-Print "Loaded stringlib.LANGUAGE"
-```
-
-### Using It
-
-```
-Import "stringlib.LANGUAGE"
-
-Print repeat("ha", 4)   # hahahaha
-```
-
----
-
-## Indentation Rules
-
-LANGUAGE is whitespace-sensitive. Blocks must be indented with **2 spaces** per level. Mixing tabs and spaces or using other indentation sizes will cause errors.
-
-```
-If x > 0
-  Print "positive"     # 2 spaces
-  If x > 10
-    Print "big"        # 4 spaces (nested)
-  End
-End
-```
-
----
-
-## Quick Reference
-
-```
 # Variables
-x = 42
-name = "LANGUAGE"
-flag = True
-nums = [1, 2, 3]
+name = "James"
+age = 21
+Print "Hello, {name}! You are {age} years old."
 
-# Output
-Print "Hello, " + name
+# Functions
+Func Greet(name, greeting = "Hello")
+  Return "{greeting}, {name}!"
+End
 
-# Input
-answer = Input("Enter something: ")
+Print Greet("James")
+Print Greet("James", "Hey")
 
-# Arithmetic
-Print 10 + 3    # 13
-Print 10 - 3    # 7
-Print 10 * 3    # 30
-Print 10 / 3    # 3.333333
+# Dictionaries
+person = {"name": "James", "lang": "LANGUAGE"}
+Print person["name"]
+person["version"] = 2
+Print ToString(DictKeys(person))
 
-# String ops
-Print Length("hello")         # 5
-Print Upper("hello")          # HELLO
-Print Lower("HELLO")          # hello
-Print Substring("hello", 1, 3) # ell
-Print Contains("hello", "ell") # 1
+# JSON
+data = {"score": 100, "passed": True}
+json = JsonStringify(data)
+Print json
+parsed = JsonParse(json)
+Print ToString(parsed["score"])
+```
 
-# Math
-Print Floor(3.9)    # 3
-Print Ceil(3.1)     # 4
-Print Sqrt(25)      # 5
-Print Abs(-7)       # 7
-Print Power(2, 8)   # 256
+---
 
-# Type conversion
-Print ToNumber("99")   # 99
-Print ToString(3.14)   # 3.14
+## Language Reference
 
-# Conditionals
+### Types
+
+| Type | Example |
+|------|---------|
+| Number | `x = 42` |
+| String | `s = "hello"` |
+| Boolean | `b = True` or `b = False` |
+| Array | `arr = [1, 2, 3]` |
+| Dictionary | `d = {"key": "value"}` |
+| Null | `x = Null` |
+
+### Strings
+
+```
+# Interpolation
+name = "James"
+Print "Hello, {name}!"
+Print "2 + 2 = {2 + 2}"
+Print "Escaped: {{not interpolated}}"
+
+# Multiline (backtick)
+html = `<html>
+  <body>Hello</body>
+</html>`
+Print html
+```
+
+### Control Flow
+
+```
+# If / Elif / Else
 If x > 10
   Print "big"
 Elif x > 5
@@ -609,38 +116,393 @@ Else
   Print "small"
 End
 
-# Loops
+# While
 While x > 0
   x = x - 1
 End
 
-For i = 1 To 5
-  Print i
+# For
+For i = 1 To 10
+  Print ToString(i)
 End
 
-# Arrays
-Push(nums, 4)
-Pop(nums)
-Print nums[0]
-Print Length(nums)
-
-# Functions
-Func square(n)
-  Return n * n
+# Break / Continue
+For i = 1 To 10
+  If i == 5
+    Break
+  End
+  If Mod(i, 2) == 0
+    Continue
+  End
+  Print ToString(i)
 End
-
-# File I/O
-WriteFile("out.txt", "hello")
-AppendFile("out.txt", " world")
-Print ReadFile("out.txt")
-
-# Error handling
-Try
-  x = 1 / 0
-Catch(err)
-  Print err
-End
-
-# Import
-Import "mylib.LANGUAGE"
 ```
+
+### Functions
+
+```
+Func Add(a, b)
+  Return a + b
+End
+
+# Default parameters
+Func Greet(name, greeting = "Hello")
+  Return "{greeting}, {name}!"
+End
+
+# Recursion
+Func Factorial(n)
+  If n <= 1
+    Return 1
+  End
+  Return n * Factorial(n - 1)
+End
+```
+
+### Arrays
+
+```
+arr = [1, 2, 3, 4, 5]
+Print arr[0]
+arr[0] = 99
+Push(arr, 6)
+Pop(arr)
+Print Length(arr)
+Print ToString(Sort(arr))
+Print ToString(Reverse(arr))
+Print ToString(Contains(arr, 3))
+Print ToString(IndexOf(arr, 3))
+```
+
+### Dictionaries
+
+```
+d = {"name": "James", "age": 21}
+Print d["name"]
+d["age"] = 22
+d["country"] = "Malta"
+
+Print ToString(DictKeys(d))
+Print ToString(DictValues(d))
+Print ToString(DictHas(d, "name"))
+Print ToString(DictSize(d))
+DictRemove(d, "country")
+
+d2 = {"age": 99, "lang": "LANGUAGE"}
+Print ToString(DictMerge(d, d2))
+```
+
+### JSON
+
+```
+data = {"name": "LANGUAGE", "version": 2, "cool": True, "nothing": Null}
+json = JsonStringify(data)
+Print json
+
+parsed = JsonParse(json)
+Print parsed["name"]
+Print ToString(parsed["version"])
+```
+
+### Error Handling
+
+```
+Try
+  result = 1 / 0
+Catch(err)
+  Print "Error: " + err
+End
+```
+
+### File I/O
+
+```
+WriteFile("output.txt", "Hello!")
+content = ReadFile("output.txt")
+Print content
+AppendFile("output.txt", " More text.")
+```
+
+### Comments
+
+```
+# This is a comment #
+```
+
+### Imports
+
+```
+# Import a LANGUAGE file
+Import "utils.LANGUAGE"
+
+# Import a LANGPACK
+Import LANGQT
+```
+
+---
+
+## Networking
+
+### DNS
+
+```
+ip = DnsResolve("example.com")
+all = DnsResolveAll("example.com")
+ipv6 = DnsResolveIPv6("example.com")
+host = DnsReverse("1.2.3.4")
+```
+
+### TCP
+
+```
+# Client
+sock = SocketConnect("127.0.0.1", 8080)
+SocketSend(sock, "Hello!")
+response = SocketReceive(sock)
+SocketClose(sock)
+
+# Server
+server = SocketListen("0.0.0.0", 8080)
+client = SocketAccept(server)
+msg = SocketReceive(client)
+SocketSend(client, "Got it!")
+SocketClose(client)
+SocketClose(server)
+```
+
+### UDP
+
+```
+# Send
+sock = UdpCreate(0)
+UdpSend(sock, "127.0.0.1", 9000, "Hello UDP!")
+UdpClose(sock)
+
+# Receive
+sock = UdpCreate(9000)
+UdpSetTimeout(sock, 2000)
+msg = UdpReceive(sock)
+pkt = UdpReceiveFull(sock)
+Print pkt["data"]
+Print pkt["ip"]
+Print ToString(pkt["port"])
+UdpClose(sock)
+
+# Broadcast
+sock = UdpCreate(0)
+UdpBroadcast(sock, 9000, "Hello everyone!")
+UdpClose(sock)
+```
+
+### HTTP Client
+*Requires `-DUSE_CURL=ON`*
+
+```
+# Basic requests
+body = HttpGet("https://api.example.com/data")
+body = HttpPost("https://api.example.com/submit", "key=value")
+body = HttpPut("https://api.example.com/item/1", "data")
+body = HttpDelete("https://api.example.com/item/1")
+
+# JSON helpers
+data = HttpGetJson("https://api.example.com/json")
+Print data["name"]
+
+payload = {"key": "value", "number": 42}
+response = HttpPostJson("https://api.example.com/json", payload)
+
+# Full response with status and headers
+full = HttpGetFull("https://api.example.com/data")
+Print full["body"]
+Print ToString(full["status"])
+Print full["headers"]
+
+# Download a file
+bytes = HttpDownload("https://example.com/file.zip", "file.zip")
+Print "Downloaded: " + ToString(bytes) + " bytes"
+
+# Custom request
+body = HttpRequest("https://api.example.com", "PATCH", "{\"key\":\"val\"}", "Authorization: Bearer token123")
+```
+
+### HTTP Server
+
+```
+server = HttpServerCreate("0.0.0.0", 8080)
+Print "Server running on port 8080"
+
+While True
+  conn = HttpServerAccept(server)
+
+  method = HttpRequestMethod(conn)
+  path = HttpRequestPath(conn)
+  ip = HttpRequestIP(conn)
+
+  If path == "/api/hello"
+    HttpRespondJson(conn, 200, {"message": "Hello!", "from": "LANGUAGE"})
+  Elif path == "/"
+    HttpRespondFile(conn, 200, "index.html")
+  Elif path == "/redirect"
+    HttpRespondRedirect(conn, "/api/hello")
+  Else
+    HttpRespondJson(conn, 404, {"error": "Not found"})
+  End
+End
+```
+
+### WebSockets
+*Requires `-DUSE_WEBSOCKETS=ON`*
+
+```
+ws = WsConnect("ws://localhost:8080/chat")
+WsSend(ws, "Hello!")
+msg = WsReceive(ws)
+Print msg
+WsClose(ws)
+```
+
+---
+
+## Math Library
+
+```
+Floor, Ceil, Round, Abs, Sqrt, Power, Mod
+Sin, Cos, Tan, Asin, Acos, Atan, Atan2
+Log, Log10, Log2, Exp, Factorial, GCD, LCM
+Mean, Median, StdDev, Variance, Sum, Product
+Min, Max, Clamp, Lerp, Sign, Hypot, Cbrt
+Erf, Erfc, Gamma, Beta, IsNaN, IsInf
+BitAnd, BitOr, BitXor, BitNot, BitShiftLeft, BitShiftRight
+```
+
+---
+
+## Type Checks
+
+```
+IsNull(x)
+IsNumber(x)
+IsString(x)
+IsBool(x)
+IsArray(x)
+IsDict(x)
+```
+
+---
+
+## Package Manager
+
+```bash
+LANGUAGE --install PACKAGENAME      # install a package
+LANGUAGE --uninstall PACKAGENAME    # uninstall a package
+LANGUAGE --list                     # list installed packages
+LANGUAGE --search                   # browse available packages
+LANGUAGE --search qt                # search by name
+```
+
+Packages are installed to:
+- **Linux:** `~/.language/packages/`
+- **Windows:** `%APPDATA%\LANGUAGE\packages\`
+
+---
+
+## LANGPACK Development
+
+LANGPACKs extend LANGUAGE with native C++ code. They are compiled shared libraries (`.so` / `.dll`) renamed to `.langpack`.
+
+**1. Download `language_api.h` from this repo**
+
+**2. Write your LANGPACK:**
+
+```cpp
+#include "language_api.h"
+
+LangValue* my_cube(LangArgs* args) {
+    double x = lang_to_number(lang_arg(args, 0));
+    return lang_number(x * x * x);
+}
+
+LANGPACK_EXPORT const char* langpack_name()    { return "MYPACK"; }
+LANGPACK_EXPORT const char* langpack_version() { return "1.0.0"; }
+LANGPACK_EXPORT const char* langpack_author()  { return "YourName"; }
+
+LANGPACK_EXPORT void langpack_register(LangInterp* interp) {
+    lang_register(interp, "MyCube", my_cube);
+}
+```
+
+**3. Compile:**
+
+```bash
+# Linux
+g++ -std=c++17 -shared -fPIC -o MYPACK.langpack mypack.cpp
+
+# Windows (MinGW)
+g++ -std=c++17 -shared -o MYPACK.langpack mypack.cpp
+```
+
+**4. Use:**
+```
+Import MYPACK
+Print ToString(MyCube(3))   # 27
+```
+
+**5. Publish:** Create a GitHub repo, upload releases for Linux and Windows, then open an issue or contact the maintainer to get it added to the registry.
+
+---
+
+## Building from Source
+
+```bash
+git clone https://github.com/B16SETC/LANGUAGE-Programming-Language
+cd LANGUAGE-Programming-Language
+mkdir build && cd build
+
+# Basic build
+cmake ..
+make
+
+# With HTTP/HTTPS support
+cmake -DUSE_CURL=ON ..
+make
+
+# With WebSocket support
+cmake -DUSE_CURL=ON -DUSE_WEBSOCKETS=ON ..
+make
+```
+
+**Dependencies (optional):**
+```bash
+# Ubuntu/Debian
+sudo apt install libcurl4-openssl-dev libwebsockets-dev
+
+# Arch
+sudo pacman -S curl libwebsockets
+```
+
+---
+
+## CLI
+
+```
+LANGUAGE <script.LANGUAGE>     Run a script
+LANGUAGE --help                Show help
+LANGUAGE --version             Show version
+LANGUAGE --update              Update to latest release
+LANGUAGE --install <pkg>       Install a package
+LANGUAGE --uninstall <pkg>     Uninstall a package
+LANGUAGE --list                List installed packages
+LANGUAGE --search [query]      Search available packages
+```
+
+---
+
+## Indentation
+
+Use **2 spaces** per level. Tabs are not supported.
+
+---
+
+## License
+
+MIT

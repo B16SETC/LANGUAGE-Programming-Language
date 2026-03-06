@@ -43,7 +43,11 @@ std::unique_ptr<ASTNode> Parser::factor() {
     }
     if (token.type == TokenType::STRING) {
         advance();
-        return std::make_unique<StringNode>(token.value);
+        // Check for string interpolation: contains {expr}
+        const std::string& raw = token.value;
+        if (raw.find('{') != std::string::npos)
+            return parse_interp_string(raw);
+        return std::make_unique<StringNode>(raw);
     }
     if (token.type == TokenType::TRUE) {
         advance();
@@ -52,6 +56,14 @@ std::unique_ptr<ASTNode> Parser::factor() {
     if (token.type == TokenType::FALSE) {
         advance();
         return std::make_unique<BooleanNode>(false);
+    }
+    if (token.type == TokenType::NULL_TOKEN) {
+        advance();
+        return std::make_unique<NullNode>();
+    }
+    if (token.type == TokenType::LBRACE) {
+        advance();
+        return parse_dict();
     }
     if (token.type == TokenType::NOT) {
         advance();
@@ -110,9 +122,10 @@ std::unique_ptr<ASTNode> Parser::factor() {
             advance();
             auto index = logical();
             if (current_token.type != TokenType::RBRACKET)
-                throw std::runtime_error("Expected ']' after array index");
+                throw std::runtime_error("Expected ']' after index");
             advance();
-            return std::make_unique<ArrayAccessNode>(token.value, std::move(index));
+            // Could be array or dict access — interpreter handles both
+            return std::make_unique<DictAccessNode>(token.value, std::move(index));
         }
 
         if (current_token.type == TokenType::LPAREN) {
@@ -144,9 +157,87 @@ std::unique_ptr<ASTNode> Parser::factor() {
                 return std::make_unique<StringOpNode>("Substring", std::move(target), std::move(rest));
             }
 
-            // Math built-ins
-            if (token.value == "Floor" || token.value == "Ceil" || token.value == "Sqrt" ||
-                token.value == "Abs"   || token.value == "Power") {
+            // Math built-ins (single argument or with extra args)
+            if (token.value == "Floor" || token.value == "Ceil" || token.value == "Round" ||
+                token.value == "Sqrt"  || token.value == "Abs"  || token.value == "Power" ||
+                token.value == "Sin"   || token.value == "Cos"  || token.value == "Tan" ||
+                token.value == "Asin"  || token.value == "Acos" || token.value == "Atan" ||
+                token.value == "Atan2" || token.value == "Mod"  || token.value == "Min" ||
+                token.value == "Max"   || token.value == "Clamp" || token.value == "Lerp" ||
+                token.value == "Log"   || token.value == "Log10" || token.value == "Log2" ||
+                token.value == "Exp"   || token.value == "Sinh"  || token.value == "Cosh" ||
+                token.value == "Tanh"  || token.value == "Asinh" || token.value == "Acosh" ||
+                token.value == "Atanh" || token.value == "Deg2Rad" || token.value == "Rad2Deg" ||
+                token.value == "Factorial" || token.value == "IsPrime" || token.value == "GCD" ||
+                token.value == "LCM"   || token.value == "RandomInt" ||
+                // Possibly useful
+                token.value == "Sign"    || token.value == "Truncate"  || token.value == "Frac" ||
+                token.value == "Hypot"   || token.value == "Cbrt"      || token.value == "CopySign" ||
+                token.value == "LogBase" ||
+                // Number checks
+                token.value == "IsNaN"   || token.value == "IsInf" ||
+                token.value == "IsEven"  || token.value == "IsOdd" ||
+                // Type checks
+                token.value == "IsNull"   || token.value == "IsDict"   ||
+                token.value == "IsArray"  || token.value == "IsString" ||
+                token.value == "IsNumber" || token.value == "IsBool"   ||
+                // Dictionary operations
+                token.value == "DictKeys"   || token.value == "DictValues" ||
+                token.value == "DictHas"    || token.value == "DictRemove" ||
+                token.value == "DictSize"   || token.value == "DictMerge"  ||
+                // JSON
+                token.value == "JsonParse"  || token.value == "JsonStringify" ||
+                // Bitwise
+                token.value == "BitAnd"  || token.value == "BitOr"         || token.value == "BitXor" ||
+                token.value == "BitNot"  || token.value == "BitShiftLeft"  || token.value == "BitShiftRight" ||
+                // Statistics
+                token.value == "Sum"     || token.value == "Product"  || token.value == "Mean" ||
+                token.value == "Median"  || token.value == "Variance" || token.value == "StdDev" ||
+                // Pure math
+                token.value == "Gamma"   || token.value == "Beta" ||
+                token.value == "Erf"     || token.value == "Erfc" ||
+                // TCP Sockets
+                token.value == "SocketConnect"     || token.value == "SocketListen" ||
+                token.value == "SocketAccept"      || token.value == "SocketSend" ||
+                token.value == "SocketReceive"     || token.value == "SocketReceiveLine" ||
+                token.value == "SocketClose"       || token.value == "SocketIsValid" ||
+                token.value == "SocketSetTimeout"  ||
+                // HTTP Server
+                token.value == "HttpServerCreate"  || token.value == "HttpServerAccept" ||
+                token.value == "HttpServerClose"   || token.value == "HttpConnClose" ||
+                token.value == "HttpRequestMethod" || token.value == "HttpRequestPath" ||
+                token.value == "HttpRequestBody"   || token.value == "HttpRequestHeader" ||
+                token.value == "HttpRequestParam"  ||
+                token.value == "HttpRespond"       || token.value == "HttpRespondFile" ||
+                // DNS
+                token.value == "DnsResolve"        || token.value == "DnsResolveAll" ||
+                token.value == "DnsResolveIPv6"    || token.value == "DnsReverse" ||
+                // HTTP client
+                token.value == "HttpGet"           || token.value == "HttpPost" ||
+                token.value == "HttpPut"           || token.value == "HttpDelete" ||
+                token.value == "HttpStatusCode"    || token.value == "HttpHeaders" ||
+                token.value == "HttpRequest"       || token.value == "HttpRequestStatus" ||
+                token.value == "HttpDownload"      || token.value == "HttpGetJson" ||
+                token.value == "HttpPostJson"      || token.value == "HttpGetWithTimeout" ||
+                token.value == "HttpGetFull"       ||
+                // HTTP server
+                token.value == "HttpServerCreate"  || token.value == "HttpServerAccept" ||
+                token.value == "HttpServerClose"   || token.value == "HttpConnClose" ||
+                token.value == "HttpRequestMethod" || token.value == "HttpRequestPath" ||
+                token.value == "HttpRequestBody"   || token.value == "HttpRequestHeader" ||
+                token.value == "HttpRequestParam"  || token.value == "HttpRequestQuery" ||
+                token.value == "HttpRequestIP"     ||
+                token.value == "HttpRespond"       || token.value == "HttpRespondFile" ||
+                token.value == "HttpRespondJson"   || token.value == "HttpRespondRedirect" ||
+                // WebSocket
+                token.value == "WsConnect"         || token.value == "WsSend" ||
+                token.value == "WsReceive"         || token.value == "WsReceiveLine" ||
+                token.value == "WsClose"           || token.value == "WsIsConnected" ||
+                // UDP
+                token.value == "UdpCreate"         || token.value == "UdpSend" ||
+                token.value == "UdpReceive"        || token.value == "UdpReceiveFull" ||
+                token.value == "UdpSetTimeout"     || token.value == "UdpClose" ||
+                token.value == "UdpBroadcast") {
                 auto target = std::move(args[0]);
                 std::vector<std::unique_ptr<ASTNode>> rest;
                 for (size_t i = 1; i < args.size(); i++) rest.push_back(std::move(args[i]));
@@ -299,11 +390,20 @@ std::unique_ptr<ASTNode> Parser::func_def() {
     advance();
 
     std::vector<std::string> params;
+    std::vector<std::unique_ptr<ASTNode>> defaults;
+
     while (current_token.type != TokenType::RPAREN && current_token.type != TokenType::END_OF_FILE) {
         if (current_token.type != TokenType::IDENTIFIER)
             throw std::runtime_error("Expected parameter name");
         params.push_back(current_token.value);
         advance();
+        if (current_token.type == TokenType::ASSIGN) {
+            // Default parameter: Func greet(name = "World")
+            advance();
+            defaults.push_back(logical());
+        } else {
+            defaults.push_back(nullptr); // no default
+        }
         if (current_token.type == TokenType::COMMA) advance();
     }
     if (current_token.type != TokenType::RPAREN)
@@ -316,7 +416,7 @@ std::unique_ptr<ASTNode> Parser::func_def() {
 
     auto body = parse_block();
     if (current_token.type == TokenType::END) advance();
-    return std::make_unique<FuncDefNode>(name, std::move(params), std::move(body));
+    return std::make_unique<FuncDefNode>(name, std::move(params), std::move(defaults), std::move(body));
 }
 
 std::unique_ptr<ASTNode> Parser::try_statement() {
@@ -414,11 +514,18 @@ std::unique_ptr<ASTNode> Parser::statement() {
 
     if (current_token.type == TokenType::IMPORT) {
         advance();
-        if (current_token.type != TokenType::STRING)
-            throw std::runtime_error("Expected string path after Import");
-        std::string filepath = current_token.value;
-        advance();
-        return std::make_unique<ImportNode>(filepath);
+        if (current_token.type == TokenType::STRING) {
+            // Import "file.LANGUAGE" — file import
+            std::string filepath = current_token.value;
+            advance();
+            return std::make_unique<ImportNode>(filepath);
+        } else if (current_token.type == TokenType::IDENTIFIER) {
+            // Import PACKAGENAME — LANGPACK import
+            std::string pkg = current_token.value;
+            advance();
+            return std::make_unique<LangpackImportNode>(pkg);
+        }
+        throw std::runtime_error("Expected file path or package name after Import");
     }
 
     if (current_token.type == TokenType::IDENTIFIER) {
@@ -437,9 +544,10 @@ std::unique_ptr<ASTNode> Parser::statement() {
                 throw std::runtime_error("Expected ']'");
             advance();
             if (current_token.type != TokenType::ASSIGN)
-                throw std::runtime_error("Expected '=' after array index");
+                throw std::runtime_error("Expected '=' after index");
             advance();
-            return std::make_unique<ArrayAssignNode>(name, std::move(index), logical());
+            // DictAssignNode handles both arrays and dicts at runtime
+            return std::make_unique<DictAssignNode>(name, std::move(index), logical());
         }
 
         if (current_token.type == TokenType::LPAREN) {
@@ -475,4 +583,79 @@ std::vector<std::unique_ptr<ASTNode>> Parser::parse() {
         }
     }
     return statements;
+}
+
+// ── Dictionary literal parsing ────────────────────────────────────────────
+// Called after consuming '{', parses key: value pairs until '}'
+std::unique_ptr<ASTNode> Parser::parse_dict() {
+    std::vector<std::pair<std::unique_ptr<ASTNode>, std::unique_ptr<ASTNode>>> pairs;
+    while (current_token.type != TokenType::RBRACE && current_token.type != TokenType::END_OF_FILE) {
+        auto key = logical();
+        if (current_token.type != TokenType::COLON)
+            throw std::runtime_error("Expected ':' after dictionary key");
+        advance();
+        auto val = logical();
+        pairs.emplace_back(std::move(key), std::move(val));
+        if (current_token.type == TokenType::COMMA) advance();
+    }
+    if (current_token.type != TokenType::RBRACE)
+        throw std::runtime_error("Expected '}' after dictionary entries");
+    advance();
+    return std::make_unique<DictNode>(std::move(pairs));
+}
+
+// ── String interpolation parsing ──────────────────────────────────────────
+// Parses "Hello {name}, you are {age} years old!"
+// into alternating literal/expression segments
+std::unique_ptr<ASTNode> Parser::parse_interp_string(const std::string& raw) {
+    auto node = std::make_unique<InterpStringNode>();
+    size_t i = 0;
+    while (i < raw.size()) {
+        if (raw[i] == '{') {
+            // Check for escaped brace {{
+            if (i + 1 < raw.size() && raw[i + 1] == '{') {
+                InterpStringNode::Segment seg;
+                seg.is_expr = false;
+                seg.literal = "{";
+                node->segments.push_back(std::move(seg));
+                i += 2;
+                continue;
+            }
+            // Find closing brace
+            size_t end = raw.find('}', i + 1);
+            if (end == std::string::npos)
+                throw std::runtime_error("Unterminated '{' in interpolated string");
+            std::string expr_src = raw.substr(i + 1, end - i - 1);
+            // Parse the inner expression
+            Lexer inner_lexer(expr_src + "\n");
+            auto inner_tokens = inner_lexer.tokenize();
+            Parser inner_parser(inner_tokens);
+            auto expr_ast = inner_parser.logical();
+            InterpStringNode::Segment seg;
+            seg.is_expr = true;
+            seg.expr = std::move(expr_ast);
+            node->segments.push_back(std::move(seg));
+            i = end + 1;
+        } else if (raw[i] == '}' && i + 1 < raw.size() && raw[i + 1] == '}') {
+            // Escaped }}
+            InterpStringNode::Segment seg;
+            seg.is_expr = false;
+            seg.literal = "}";
+            node->segments.push_back(std::move(seg));
+            i += 2;
+        } else {
+            // Literal segment
+            std::string lit;
+            while (i < raw.size() && raw[i] != '{' && !(raw[i] == '}' && i + 1 < raw.size() && raw[i+1] == '}')) {
+                lit += raw[i++];
+            }
+            if (!lit.empty()) {
+                InterpStringNode::Segment seg;
+                seg.is_expr = false;
+                seg.literal = lit;
+                node->segments.push_back(std::move(seg));
+            }
+        }
+    }
+    return node;
 }

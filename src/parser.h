@@ -7,9 +7,14 @@ enum class NodeType {
     NUMBER,
     STRING,
     BOOLEAN,
+    NULL_LITERAL,
     ARRAY,
     ARRAY_ACCESS,
     ARRAY_ASSIGN,
+    DICT,
+    DICT_ACCESS,
+    DICT_ASSIGN,
+    INTERP_STRING,
     VARIABLE,
     BINARY_OP,
     LOGICAL_OP,
@@ -27,6 +32,7 @@ enum class NodeType {
     BREAK_STATEMENT,
     CONTINUE_STATEMENT,
     IMPORT_STATEMENT,
+    LANGPACK_IMPORT,
     FUNC_DEF,
     FUNC_CALL,
     RETURN_STATEMENT,
@@ -52,6 +58,53 @@ struct StringNode : ASTNode {
 struct BooleanNode : ASTNode {
     bool value;
     BooleanNode(bool val) : value(val) { type = NodeType::BOOLEAN; }
+};
+
+struct NullNode : ASTNode {
+    NullNode() { type = NodeType::NULL_LITERAL; }
+};
+
+// Dictionary literal: {"key": value, ...}
+struct DictNode : ASTNode {
+    std::vector<std::pair<std::unique_ptr<ASTNode>, std::unique_ptr<ASTNode>>> pairs;
+    DictNode(std::vector<std::pair<std::unique_ptr<ASTNode>, std::unique_ptr<ASTNode>>> p)
+        : pairs(std::move(p)) { type = NodeType::DICT; }
+};
+
+// dict["key"] or dict[expr]
+struct DictAccessNode : ASTNode {
+    std::string name;
+    std::unique_ptr<ASTNode> key;
+    DictAccessNode(const std::string& n, std::unique_ptr<ASTNode> k)
+        : name(n), key(std::move(k)) { type = NodeType::DICT_ACCESS; }
+};
+
+// dict["key"] = value
+struct DictAssignNode : ASTNode {
+    std::string name;
+    std::unique_ptr<ASTNode> key;
+    std::unique_ptr<ASTNode> value;
+    DictAssignNode(const std::string& n, std::unique_ptr<ASTNode> k, std::unique_ptr<ASTNode> v)
+        : name(n), key(std::move(k)), value(std::move(v)) { type = NodeType::DICT_ASSIGN; }
+};
+
+// Interpolated string: "Hello {name}!"
+// Stored as alternating literal/expr segments
+struct InterpStringNode : ASTNode {
+    // Each segment is either a string literal or an expression
+    struct Segment {
+        bool is_expr;
+        std::string literal;
+        std::unique_ptr<ASTNode> expr;
+    };
+    std::vector<Segment> segments;
+    InterpStringNode() { type = NodeType::INTERP_STRING; }
+};
+
+// Import LANGQT  (no quotes = package import)
+struct LangpackImportNode : ASTNode {
+    std::string package_name;
+    LangpackImportNode(const std::string& name) : package_name(name) { type = NodeType::LANGPACK_IMPORT; }
 };
 
 struct ArrayNode : ASTNode {
@@ -172,9 +225,12 @@ struct ImportNode : ASTNode {
 struct FuncDefNode : ASTNode {
     std::string name;
     std::vector<std::string> params;
+    std::vector<std::unique_ptr<ASTNode>> defaults; // nullptr = no default, expr = has default
     std::vector<std::unique_ptr<ASTNode>> body;
-    FuncDefNode(const std::string& n, std::vector<std::string> p, std::vector<std::unique_ptr<ASTNode>> b)
-        : name(n), params(std::move(p)), body(std::move(b)) { type = NodeType::FUNC_DEF; }
+    FuncDefNode(const std::string& n, std::vector<std::string> p,
+                std::vector<std::unique_ptr<ASTNode>> d,
+                std::vector<std::unique_ptr<ASTNode>> b)
+        : name(n), params(std::move(p)), defaults(std::move(d)), body(std::move(b)) { type = NodeType::FUNC_DEF; }
 };
 
 struct FuncCallNode : ASTNode {
@@ -254,4 +310,6 @@ private:
     std::unique_ptr<ASTNode> expression();
     std::unique_ptr<ASTNode> term();
     std::unique_ptr<ASTNode> factor();
+    std::unique_ptr<ASTNode> parse_dict();
+    std::unique_ptr<ASTNode> parse_interp_string(const std::string& raw);
 };
