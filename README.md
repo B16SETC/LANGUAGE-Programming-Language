@@ -2,131 +2,222 @@
 
 A programming language built from scratch in C++.
 
-> Started as a joke. Became real.
+-----
 
----
-
-## Features
-
-- Numbers, strings, booleans, arrays, dictionaries, null
-- String interpolation and multiline strings
-- If / Elif / Else, While, For loops
-- Functions with default parameters
-- Recursion, Try / Catch error handling
-- File I/O
-- Full math library (70+ functions)
-- Complete networking stack — DNS, TCP, UDP, HTTP client, HTTP server, WebSockets
-- JSON parsing and stringification
-- LANGPACK system — extend LANGUAGE with native C++ packages
-- Package manager — `--install`, `--uninstall`, `--list`, `--search`
-- Cross-platform — Linux and Windows
-
----
-
-## Installation
-
-Download the latest binary from [Releases](https://github.com/B16SETC/LANGUAGE-Programming-Language/releases).
-
-**Linux:**
-```bash
-chmod +x LANGUAGE
-./LANGUAGE script.LANGUAGE
-```
-
-**Windows:**
-```
-LANGUAGE.exe script.LANGUAGE
-```
-
----
-
-## Quick Start
+## Hello World
 
 ```
-# Hello World
 Print "Hello, World!"
+```
 
-# Variables
+-----
+
+## Variables
+
+```
+x = 42
+name = "James"
+b = True
+nothing = Null
+```
+
+-----
+
+## Types
+
+|Type      |Example                 |
+|----------|------------------------|
+|Number    |`x = 42`                |
+|String    |`s = "hello"`           |
+|Boolean   |`b = True` / `b = False`|
+|Array     |`arr = [1, 2, 3]`       |
+|Dictionary|`d = {"key": "value"}`  |
+|Null      |`x = Null`              |
+
+-----
+
+## Arithmetic
+
+```
+x = 10 + 3
+x = 10 - 3
+x = 10 * 3
+x = 10 / 3
+x = Power(2, 8)
+x = Sqrt(144)
+x = Abs(-5)
+x = Mod(17, 5)
+```
+
+-----
+
+## Strings
+
+```
+s = "Hello, World!"
+Print Length(s)
+Print Upper(s)
+Print Lower(s)
+Print Substring(s, 0, 5)
+Print Replace(s, "World", "James")
+Print Contains(s, "Hello")
+Print StartsWith(s, "Hello")
+Print EndsWith(s, "!")
+Print Trim("  spaces  ")
+Print ToString(42)
+```
+
+### String Interpolation
+
+```
 name = "James"
 age = 21
-Print "Hello, {name}! You are {age} years old."
-
-# Functions
-Func Greet(name, greeting = "Hello")
-  Return "{greeting}, {name}!"
-End
-
-Print Greet("James")
-Print Greet("James", "Hey")
-
-# Dictionaries
-person = {"name": "James", "lang": "LANGUAGE"}
-Print person["name"]
-person["version"] = 2
-Print ToString(DictKeys(person))
-
-# JSON
-data = {"score": 100, "passed": True}
-json = JsonStringify(data)
-Print json
-parsed = JsonParse(json)
-Print ToString(parsed["score"])
-```
-
----
-
-## Language Reference
-
-### Types
-
-| Type | Example |
-|------|---------|
-| Number | `x = 42` |
-| String | `s = "hello"` |
-| Boolean | `b = True` or `b = False` |
-| Array | `arr = [1, 2, 3]` |
-| Dictionary | `d = {"key": "value"}` |
-| Null | `x = Null` |
-
-### Strings
-
-```
-# Interpolation
-name = "James"
 Print "Hello, {name}!"
+Print "You are {age} years old."
 Print "2 + 2 = {2 + 2}"
 Print "Escaped: {{not interpolated}}"
-
-# Multiline (backtick)
-html = `<html>
-  <body>Hello</body>
-</html>`
-Print html
 ```
 
-### Control Flow
+### Multiline Strings
 
 ```
-# If / Elif / Else
-If x > 10
-  Print "big"
-Elif x > 5
-  Print "medium"
+msg = `Hello,
+this spans
+multiple lines.`
+Print msg
+```
+
+-----
+
+## Arrays
+
+```
+arr = [1, 2, 3, 4, 5]
+Print arr[0]
+arr[0] = 99
+Push(arr, 6)
+Pop(arr)
+Print Length(arr)
+Print Sort(arr)
+Print Reverse(arr)
+Print Contains(arr, 3)
+Print IndexOf(arr, 3)
+```
+
+-----
+
+## Dictionaries
+
+```
+person = {"name": "James", "age": 21}
+Print person["name"]
+person["age"] = 22
+person["country"] = "Malta"
+
+Print DictKeys(person)
+Print DictValues(person)
+Print DictHas(person, "name")
+Print DictSize(person)
+DictRemove(person, "country")
+
+d1 = {"a": 1, "b": 2}
+d2 = {"b": 99, "c": 3}
+Print DictMerge(d1, d2)
+```
+
+-----
+
+## Null
+
+```
+x = Null
+Print IsNull(x)
+
+If x == Null
+  Print "x is null"
+End
+```
+
+-----
+
+## Type Checks
+
+```
+Print IsNull(x)
+Print IsNumber(x)
+Print IsString(x)
+Print IsBool(x)
+Print IsArray(x)
+Print IsDict(x)
+```
+
+-----
+
+## JSON
+
+```
+data = {"name": "James", "age": 21, "active": True}
+json = JsonStringify(data)
+Print json
+
+parsed = JsonParse(json)
+Print parsed["name"]
+Print parsed["age"]
+```
+
+-----
+
+## Comments
+
+```
+# This is a comment #
+```
+
+-----
+
+## If / Elif / Else
+
+```
+score = 85
+
+If score >= 90
+  Print "A"
+Elif score >= 80
+  Print "B"
+Elif score >= 70
+  Print "C"
 Else
-  Print "small"
+  Print "F"
 End
+```
 
-# While
-While x > 0
-  x = x - 1
+-----
+
+## While Loop
+
+```
+i = 1
+While i <= 5
+  Print ToString(i)
+  i = i + 1
 End
+```
 
-# For
+-----
+
+## For Loop
+
+```
 For i = 1 To 10
   Print ToString(i)
 End
+```
 
-# Break / Continue
+-----
+
+## Break and Continue
+
+```
 For i = 1 To 10
   If i == 5
     Break
@@ -138,83 +229,66 @@ For i = 1 To 10
 End
 ```
 
-### Functions
+-----
+
+## Functions
 
 ```
 Func Add(a, b)
   Return a + b
 End
 
-# Default parameters
+Print ToString(Add(3, 4))
+```
+
+### Default Parameters
+
+```
 Func Greet(name, greeting = "Hello")
   Return "{greeting}, {name}!"
 End
 
-# Recursion
+Print Greet("James")
+Print Greet("James", "Hey")
+```
+
+### Recursion
+
+```
 Func Factorial(n)
   If n <= 1
     Return 1
   End
   Return n * Factorial(n - 1)
 End
+
+Print ToString(Factorial(6))
 ```
 
-### Arrays
+-----
 
-```
-arr = [1, 2, 3, 4, 5]
-Print arr[0]
-arr[0] = 99
-Push(arr, 6)
-Pop(arr)
-Print Length(arr)
-Print ToString(Sort(arr))
-Print ToString(Reverse(arr))
-Print ToString(Contains(arr, 3))
-Print ToString(IndexOf(arr, 3))
-```
-
-### Dictionaries
-
-```
-d = {"name": "James", "age": 21}
-Print d["name"]
-d["age"] = 22
-d["country"] = "Malta"
-
-Print ToString(DictKeys(d))
-Print ToString(DictValues(d))
-Print ToString(DictHas(d, "name"))
-Print ToString(DictSize(d))
-DictRemove(d, "country")
-
-d2 = {"age": 99, "lang": "LANGUAGE"}
-Print ToString(DictMerge(d, d2))
-```
-
-### JSON
-
-```
-data = {"name": "LANGUAGE", "version": 2, "cool": True, "nothing": Null}
-json = JsonStringify(data)
-Print json
-
-parsed = JsonParse(json)
-Print parsed["name"]
-Print ToString(parsed["version"])
-```
-
-### Error Handling
+## Error Handling
 
 ```
 Try
-  result = 1 / 0
+  x = 1 / 0
 Catch(err)
   Print "Error: " + err
 End
 ```
 
-### File I/O
+-----
+
+## User Input
+
+```
+name = Input("What is your name? ")
+Print "Hello, " + name + "!"
+```
+
+-----
+
+## File I/O
 
 ```
 WriteFile("output.txt", "Hello!")
@@ -223,42 +297,85 @@ Print content
 AppendFile("output.txt", " More text.")
 ```
 
-### Comments
+-----
+
+## Imports
 
 ```
-# This is a comment #
-```
-
-### Imports
-
-```
-# Import a LANGUAGE file
+# Import another LANGUAGE file
 Import "utils.LANGUAGE"
 
-# Import a LANGPACK
-Import LANGQT
+# Import a LANGPACK (native C++ extension)
+Import MYPACK
 ```
 
----
+-----
 
-## Networking
-
-### DNS
+## Math Library
 
 ```
-ip = DnsResolve("example.com")
-all = DnsResolveAll("example.com")
+Floor(3.7)        # 3
+Ceil(3.2)         # 4
+Round(3.5)        # 4
+Sin(0)            # 0
+Cos(0)            # 1
+Tan(0)            # 0
+Asin(1)
+Acos(1)
+Atan(1)
+Atan2(1, 1)
+Log(1)            # 0
+Log10(100)        # 2
+Log2(8)           # 3
+Exp(1)
+GCD(48, 18)       # 6
+LCM(4, 6)         # 12
+Clamp(15, 0, 10)  # 10
+Lerp(0, 100, 0.5) # 50
+Mean([1,2,3,4,5]) # 3
+Median([1,2,3])   # 2
+StdDev([1,2,3])
+Variance([1,2,3])
+Sum([1,2,3])      # 6
+Product([1,2,3])  # 6
+Min(3, 7)         # 3
+Max(3, 7)         # 7
+Sign(-5)          # -1
+Hypot(3, 4)       # 5
+Cbrt(27)          # 3
+BitAnd(12, 10)
+BitOr(12, 10)
+BitXor(12, 10)
+BitNot(12)
+BitShiftLeft(1, 4)
+BitShiftRight(16, 2)
+IsNaN(x)
+IsInf(x)
+```
+
+-----
+
+## DNS
+
+```
+ip   = DnsResolve("example.com")
+all  = DnsResolveAll("example.com")
 ipv6 = DnsResolveIPv6("example.com")
 host = DnsReverse("1.2.3.4")
 ```
 
-### TCP
+-----
+
+## TCP Sockets
 
 ```
 # Client
 sock = SocketConnect("127.0.0.1", 8080)
 SocketSend(sock, "Hello!")
 response = SocketReceive(sock)
+line = SocketReceiveLine(sock)
+SocketSetTimeout(sock, 5000)
+Print SocketIsValid(sock)
 SocketClose(sock)
 
 # Server
@@ -270,239 +387,103 @@ SocketClose(client)
 SocketClose(server)
 ```
 
-### UDP
+-----
+
+## UDP
 
 ```
 # Send
 sock = UdpCreate(0)
-UdpSend(sock, "127.0.0.1", 9000, "Hello UDP!")
+UdpSend(sock, "127.0.0.1", 9000, "Hello!")
 UdpClose(sock)
 
 # Receive
 sock = UdpCreate(9000)
 UdpSetTimeout(sock, 2000)
 msg = UdpReceive(sock)
+
+# Receive with sender info
 pkt = UdpReceiveFull(sock)
 Print pkt["data"]
 Print pkt["ip"]
 Print ToString(pkt["port"])
-UdpClose(sock)
 
 # Broadcast
-sock = UdpCreate(0)
 UdpBroadcast(sock, 9000, "Hello everyone!")
 UdpClose(sock)
 ```
 
-### HTTP Client
-*Requires `-DUSE_CURL=ON`*
+-----
+
+## HTTP Client
 
 ```
-# Basic requests
-body = HttpGet("https://api.example.com/data")
-body = HttpPost("https://api.example.com/submit", "key=value")
-body = HttpPut("https://api.example.com/item/1", "data")
-body = HttpDelete("https://api.example.com/item/1")
+body   = HttpGet("https://api.example.com")
+body   = HttpPost("https://api.example.com", "key=value")
+body   = HttpPut("https://api.example.com/1", "data")
+body   = HttpDelete("https://api.example.com/1")
 
 # JSON helpers
-data = HttpGetJson("https://api.example.com/json")
-Print data["name"]
+data   = HttpGetJson("https://api.example.com/json")
+result = HttpPostJson("https://api.example.com/json", {"key": "value"})
 
-payload = {"key": "value", "number": 42}
-response = HttpPostJson("https://api.example.com/json", payload)
-
-# Full response with status and headers
-full = HttpGetFull("https://api.example.com/data")
+# Full response
+full   = HttpGetFull("https://api.example.com")
 Print full["body"]
 Print ToString(full["status"])
 Print full["headers"]
 
-# Download a file
-bytes = HttpDownload("https://example.com/file.zip", "file.zip")
-Print "Downloaded: " + ToString(bytes) + " bytes"
+# With timeout
+body   = HttpGetWithTimeout("https://api.example.com", 5000)
+
+# Download file
+bytes  = HttpDownload("https://example.com/file.zip", "file.zip")
 
 # Custom request
-body = HttpRequest("https://api.example.com", "PATCH", "{\"key\":\"val\"}", "Authorization: Bearer token123")
+body   = HttpRequest("https://api.example.com", "PATCH", "{\"key\":\"val\"}", "Authorization: Bearer token")
 ```
 
-### HTTP Server
+-----
+
+## HTTP Server
 
 ```
 server = HttpServerCreate("0.0.0.0", 8080)
-Print "Server running on port 8080"
 
 While True
-  conn = HttpServerAccept(server)
-
+  conn   = HttpServerAccept(server)
   method = HttpRequestMethod(conn)
-  path = HttpRequestPath(conn)
-  ip = HttpRequestIP(conn)
+  path   = HttpRequestPath(conn)
+  query  = HttpRequestQuery(conn)
+  body   = HttpRequestBody(conn)
+  ip     = HttpRequestIP(conn)
 
-  If path == "/api/hello"
-    HttpRespondJson(conn, 200, {"message": "Hello!", "from": "LANGUAGE"})
+  If path == "/hello"
+    HttpRespondJson(conn, 200, {"message": "Hello!"})
+  Elif path == "/redirect"
+    HttpRespondRedirect(conn, "/hello")
   Elif path == "/"
     HttpRespondFile(conn, 200, "index.html")
-  Elif path == "/redirect"
-    HttpRespondRedirect(conn, "/api/hello")
   Else
     HttpRespondJson(conn, 404, {"error": "Not found"})
   End
 End
 ```
 
-### WebSockets
-*Requires `-DUSE_WEBSOCKETS=ON`*
+-----
+
+## WebSockets
 
 ```
-ws = WsConnect("ws://localhost:8080/chat")
+ws = WsConnect("ws://localhost:8080")
 WsSend(ws, "Hello!")
-msg = WsReceive(ws)
-Print msg
+msg  = WsReceive(ws)
+line = WsReceiveLine(ws)
 WsClose(ws)
 ```
 
----
-
-## Math Library
-
-```
-Floor, Ceil, Round, Abs, Sqrt, Power, Mod
-Sin, Cos, Tan, Asin, Acos, Atan, Atan2
-Log, Log10, Log2, Exp, Factorial, GCD, LCM
-Mean, Median, StdDev, Variance, Sum, Product
-Min, Max, Clamp, Lerp, Sign, Hypot, Cbrt
-Erf, Erfc, Gamma, Beta, IsNaN, IsInf
-BitAnd, BitOr, BitXor, BitNot, BitShiftLeft, BitShiftRight
-```
-
----
-
-## Type Checks
-
-```
-IsNull(x)
-IsNumber(x)
-IsString(x)
-IsBool(x)
-IsArray(x)
-IsDict(x)
-```
-
----
-
-## Package Manager
-
-```bash
-LANGUAGE --install PACKAGENAME      # install a package
-LANGUAGE --uninstall PACKAGENAME    # uninstall a package
-LANGUAGE --list                     # list installed packages
-LANGUAGE --search                   # browse available packages
-LANGUAGE --search qt                # search by name
-```
-
-Packages are installed to:
-- **Linux:** `~/.language/packages/`
-- **Windows:** `%APPDATA%\LANGUAGE\packages\`
-
----
-
-## LANGPACK Development
-
-LANGPACKs extend LANGUAGE with native C++ code. They are compiled shared libraries (`.so` / `.dll`) renamed to `.langpack`.
-
-**1. Download `language_api.h` from this repo**
-
-**2. Write your LANGPACK:**
-
-```cpp
-#include "language_api.h"
-
-LangValue* my_cube(LangArgs* args) {
-    double x = lang_to_number(lang_arg(args, 0));
-    return lang_number(x * x * x);
-}
-
-LANGPACK_EXPORT const char* langpack_name()    { return "MYPACK"; }
-LANGPACK_EXPORT const char* langpack_version() { return "1.0.0"; }
-LANGPACK_EXPORT const char* langpack_author()  { return "YourName"; }
-
-LANGPACK_EXPORT void langpack_register(LangInterp* interp) {
-    lang_register(interp, "MyCube", my_cube);
-}
-```
-
-**3. Compile:**
-
-```bash
-# Linux
-g++ -std=c++17 -shared -fPIC -o MYPACK.langpack mypack.cpp
-
-# Windows (MinGW)
-g++ -std=c++17 -shared -o MYPACK.langpack mypack.cpp
-```
-
-**4. Use:**
-```
-Import MYPACK
-Print ToString(MyCube(3))   # 27
-```
-
-**5. Publish:** Create a GitHub repo, upload releases for Linux and Windows, then open an issue or contact the maintainer to get it added to the registry.
-
----
-
-## Building from Source
-
-```bash
-git clone https://github.com/B16SETC/LANGUAGE-Programming-Language
-cd LANGUAGE-Programming-Language
-mkdir build && cd build
-
-# Basic build
-cmake ..
-make
-
-# With HTTP/HTTPS support
-cmake -DUSE_CURL=ON ..
-make
-
-# With WebSocket support
-cmake -DUSE_CURL=ON -DUSE_WEBSOCKETS=ON ..
-make
-```
-
-**Dependencies (optional):**
-```bash
-# Ubuntu/Debian
-sudo apt install libcurl4-openssl-dev libwebsockets-dev
-
-# Arch
-sudo pacman -S curl libwebsockets
-```
-
----
-
-## CLI
-
-```
-LANGUAGE <script.LANGUAGE>     Run a script
-LANGUAGE --help                Show help
-LANGUAGE --version             Show version
-LANGUAGE --update              Update to latest release
-LANGUAGE --install <pkg>       Install a package
-LANGUAGE --uninstall <pkg>     Uninstall a package
-LANGUAGE --list                List installed packages
-LANGUAGE --search [query]      Search available packages
-```
-
----
+-----
 
 ## Indentation
 
-Use **2 spaces** per level. Tabs are not supported.
-
----
-
-## License
-
-MIT
+Use 2 spaces per level. Tabs are not supported.
